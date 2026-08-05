@@ -10,7 +10,7 @@
 :root{
   --bg:#0B0F1A; --panel:#121729; --panel2:#161D33; --border:#232C48;
   --text:#E7EAF2; --text-dim:#96A0BE; --text-mute:#616D91;
-  --accent:#F59E0B; --green:#34D399; --red:#F87171; --amber:#FBBF24;
+  --accent:#F59E0B; --green:#34D399; --red:#F87171; --amber:#FBBF24; --purple:#A78BFA;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
@@ -24,6 +24,9 @@ a{color:var(--accent)}
 .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
 .brand h1{font-size:16px;font-weight:700;letter-spacing:.02em}
 .brand small{display:block;font-size:10px;color:var(--text-mute);letter-spacing:.08em;text-transform:uppercase}
+#dropzone{border:1.5px dashed #2C3F63;border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-dim);cursor:pointer;transition:.15s}
+#dropzone:hover,#dropzone.drag{border-color:var(--accent);color:var(--accent);background:rgba(245,158,11,.06)}
+#fileInput{display:none}
 .tb-field{display:flex;flex-direction:column;gap:3px}
 .tb-field label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-mute)}
 .tb-field input[type=date]{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-size:12px;color-scheme:dark}
@@ -33,12 +36,9 @@ a{color:var(--accent)}
 .btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
 #fileCount{font-size:11px;color:var(--text-mute)}
 #hint{width:100%;font-size:11px;color:var(--amber);display:none}
-#dropzone{border:1.5px dashed #2C3F63;border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-dim);cursor:pointer;transition:.15s}
-#dropzone:hover,#dropzone.drag{border-color:var(--accent);color:var(--accent);background:rgba(245,158,11,.06)}
-#fileInput{display:none}
 
 /* ---------- layout ---------- */
-#main{display:flex;max-width:1500px;margin:0 auto}
+#main{display:flex;max-width:1600px;margin:0 auto}
 #nav{width:190px;flex:0 0 190px;padding:18px 10px;position:sticky;top:57px;align-self:flex-start;height:calc(100vh - 57px);overflow-y:auto}
 #nav a{display:block;font-size:12px;color:var(--text-dim);text-decoration:none;padding:7px 10px;border-radius:6px;margin-bottom:2px}
 #nav a:hover{background:var(--panel2);color:var(--text)}
@@ -76,6 +76,24 @@ a{color:var(--accent)}
 .kpi.click{cursor:pointer}
 .kpi.click:hover{box-shadow:0 2px 10px rgba(0,0,0,.18)}
 
+/* ---------- agent scorecard ---------- */
+.scorecard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.sc-card{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.sc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sc-name{font-size:13.5px;font-weight:700}
+.sc-stats{display:flex;gap:14px;margin-bottom:10px}
+.sc-stat .v{font-size:17px;font-weight:800}
+.sc-stat .l{font-size:9.5px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.05em;margin-top:1px}
+.sc-bar{display:flex;height:9px;border-radius:5px;overflow:hidden;background:#0B1220;margin-bottom:6px}
+.sc-bar span{height:100%}
+.sc-bar-legend{display:flex;gap:9px;flex-wrap:wrap;font-size:9.5px;color:var(--text-mute);margin-bottom:10px}
+.sc-bar-legend i{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:3px;vertical-align:middle}
+.sc-badge{font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:6px;display:inline-block}
+.sc-badge.green{background:rgba(52,211,153,.15);color:var(--green)}
+.sc-badge.amber{background:rgba(251,191,36,.15);color:var(--amber)}
+.sc-badge.red{background:rgba(248,113,113,.15);color:var(--red)}
+.sc-badge.neutral{background:var(--panel);color:var(--text-dim);border:1px solid var(--border)}
+
 /* ---------- issues ---------- */
 .issue-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:8px;background:var(--panel2);border-left:3px solid var(--text-mute)}
 .issue-row.crit{border-left-color:var(--red)}
@@ -96,13 +114,31 @@ th{text-align:left;padding:8px 10px;color:var(--text-mute);text-transform:upperc
 th:hover{color:var(--accent)}
 th.sort-asc:after{content:' \25B2';color:var(--accent)}
 th.sort-desc:after{content:' \25BC';color:var(--accent)}
-td{padding:7px 10px;border-bottom:1px solid #182142;white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid #16223B;white-space:nowrap}
 tr.total-row td{font-weight:700;background:var(--panel2);border-top:1px solid var(--border)}
 .tbl-wrap{overflow-x:auto}
 .click-num{color:var(--accent);cursor:pointer;text-decoration:underline dotted}
 .click-num:hover{color:#FCD34D}
+.role-tag{font-size:9px;padding:1px 6px;border-radius:10px;margin-left:6px;font-weight:700}
+.role-closer{background:rgba(245,158,11,.15);color:var(--accent)}
+.role-opener{background:rgba(251,191,36,.15);color:var(--amber)}
+.role-retention{background:rgba(167,139,250,.15);color:var(--purple)}
 .mono{font-family:ui-monospace,Consolas,monospace}
 .dim{color:var(--text-mute)}
+
+/* ---------- filters ---------- */
+.filter-row{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.filter-row label{font-size:10.5px;color:var(--text-mute);text-transform:uppercase;margin-right:2px}
+.af-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:5px 11px;font-size:11.5px;cursor:pointer}
+.af-btn.active{background:var(--accent);color:#241600;border-color:var(--accent);font-weight:700}
+
+/* multi-select */
+.ms-wrap{position:relative;display:inline-block}
+.ms-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:6px 10px;font-size:11.5px;cursor:pointer;min-width:140px;text-align:left}
+.ms-panel{display:none;position:absolute;top:calc(100% + 4px);left:0;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px;z-index:40;max-height:240px;overflow-y:auto;min-width:200px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.ms-panel.open{display:block}
+.ms-panel label{display:flex;align-items:center;gap:6px;font-size:12px;padding:4px 4px;cursor:pointer;color:var(--text)}
+.ms-panel hr{border:none;border-top:1px solid var(--border);margin:4px 0}
 
 /* charts */
 .chart-box{position:relative;height:260px}
@@ -110,6 +146,8 @@ tr.total-row td{font-weight:700;background:var(--panel2);border-top:1px solid va
 @media(max-width:900px){.two-col{grid-template-columns:1fr}#nav{display:none}}
 
 /* settings */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.settings-grid textarea{width:100%;min-height:140px;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;font-size:12px;font-family:ui-monospace,monospace}
 .th-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:10px}
 .th-item label{display:block;font-size:11px;color:var(--text-mute);margin-bottom:4px}
 .th-item input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-size:12px}
@@ -122,8 +160,11 @@ tr.total-row td{font-weight:700;background:var(--panel2);border-top:1px solid va
 #modalBox .m-head h3{font-size:14px}
 #modalBox .m-head span{cursor:pointer;color:var(--text-mute);font-size:18px}
 #modalBox .m-body{padding:14px 18px}
-.m-row{padding:10px;border-bottom:1px solid #182142;font-size:12px}
+.m-row{padding:10px;border-bottom:1px solid #16223B;font-size:12px}
 .m-row .ph{font-family:ui-monospace,monospace;font-weight:700}
+.m-row .pill{font-size:9px;background:var(--panel2);border:1px solid var(--border);padding:1px 7px;border-radius:20px;margin-left:6px;color:var(--text-dim)}
+.m-row audio{width:100%;height:34px;margin-top:6px}
+.m-row .dl{font-size:11px;display:block;margin-top:4px}
 #toast{position:fixed;bottom:20px;right:20px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:12.5px;z-index:200;display:none;max-width:320px}
 .empty-note{font-size:12px;color:var(--text-mute);padding:10px 0}
 </style>
@@ -161,6 +202,16 @@ tr.total-row td{font-weight:700;background:var(--panel2);border-top:1px solid va
     <a href="#sec-hour">Call Volume</a>
     <a href="#sec-dispo">Dispositions</a>
     <a href="#sec-agent">Agent Performance</a>
+    <a href="#sec-rank">Agent Rankings</a>
+    <a href="#sec-scorecard">Agent Scorecard</a>
+    <a href="#sec-camp">Campaign Breakdown</a>
+    <a href="#sec-top">Top Numbers</a>
+    <a href="#sec-vdcl">VDCL Analysis</a>
+    <a href="#sec-missed">Missed Callbacks</a>
+    <a href="#sec-dpc">DPC Drops</a>
+    <a href="#sec-transfers">Transfers</a>
+    <a href="#sec-openers">Openers Breakdown</a>
+    <a href="#sec-long">Long Calls, No Follow-up</a>
     <a href="#sec-settings">Settings</a>
   </nav>
 
@@ -169,7 +220,16 @@ tr.total-row td{font-weight:700;background:var(--panel2);border-top:1px solid va
     <div id="report" style="display:none">
 
       <div class="card" id="sec-kpi"><div class="card-head" onclick="toggleCard(this)"><h2>Overview <span class="meta" id="lastUpdated"></span></h2><span class="chev">▼</span></div>
-        <div class="card-body"><div class="section-label">At a glance</div><div class="kpi-grid" id="kpiGrid"></div></div>
+        <div class="card-body">
+          <div class="filter-row" onclick="event.stopPropagation()">
+            <label>Direction</label>
+            <button class="af-btn active" data-dir="all" onclick="setKpiDir('all',this)">All</button>
+            <button class="af-btn" data-dir="inbound" onclick="setKpiDir('inbound',this)">Inbound</button>
+            <button class="af-btn" data-dir="outbound" onclick="setKpiDir('outbound',this)">Outbound</button>
+          </div>
+          <div class="section-label">At a glance</div>
+          <div class="kpi-grid" id="kpiGrid"></div>
+        </div>
       </div>
 
       <div class="card" id="sec-issues"><div class="card-head" onclick="toggleCard(this)"><h2>Issues Detected</h2><span class="chev">▼</span></div>
@@ -196,9 +256,93 @@ tr.total-row td{font-weight:700;background:var(--panel2);border-top:1px solid va
         <div class="card-body"><div class="tbl-wrap"><table id="agentTable"><thead></thead><tbody></tbody></table></div></div>
       </div>
 
+      <div class="card" id="sec-rank"><div class="card-head" onclick="toggleCard(this)"><h2>Agent Rankings</h2><span class="chev">▼</span></div>
+        <div class="card-body">
+          <div class="filter-row">
+            <button class="af-btn active" data-r="volume" onclick="setRankMode('volume',this)">By Volume</button>
+            <button class="af-btn" data-r="contact" onclick="setRankMode('contact',this)">By Contact Rate</button>
+            <button class="af-btn" data-r="drop" onclick="setRankMode('drop',this)">By Drop Rate</button>
+          </div>
+          <div class="tbl-wrap"><table id="rankTable"><thead></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="card" id="sec-scorecard"><div class="card-head" onclick="toggleCard(this)"><h2>Agent Scorecard <span class="meta">talk-time mix &amp; performance signal, per agent</span></h2><span class="chev">▼</span></div>
+        <div class="card-body">
+          <div class="sc-bar-legend">
+            <span><i style="background:var(--text-mute)"></i>≤30s dead</span>
+            <span><i style="background:var(--accent)"></i>30s–5min</span>
+            <span><i style="background:var(--amber)"></i>5–20min</span>
+            <span><i style="background:var(--purple)"></i>20min+</span>
+          </div>
+          <div class="scorecard-grid" id="scorecardGrid"></div>
+        </div>
+      </div>
+
+      <div class="card" id="sec-camp"><div class="card-head" onclick="toggleCard(this)"><h2>Campaign / Queue Breakdown</h2><span class="chev">▼</span><div class="card-tools"><button class="btn ghost" onclick="event.stopPropagation();exportTable('campTable','campaign_breakdown.csv')">⬇ CSV</button></div></div>
+        <div class="card-body"><div class="tbl-wrap"><table id="campTable"><thead><tr><th>Campaign</th><th>Calls</th><th>Contacted</th><th>Contact%</th><th>Drops</th><th>DNC</th></tr></thead><tbody></tbody></table></div></div>
+      </div>
+
+      <div class="card" id="sec-top"><div class="card-head" onclick="toggleCard(this)"><h2>Top 5 Dialed Numbers</h2><span class="chev">▼</span></div>
+        <div class="card-body"><div class="tbl-wrap"><table id="topTable"><thead><tr><th>Phone</th><th>Calls</th><th>Campaigns</th><th>Agents</th></tr></thead><tbody></tbody></table></div></div>
+      </div>
+
+      <div class="card" id="sec-vdcl"><div class="card-head" onclick="toggleCard(this)"><h2>VDCL / VDAD Analysis</h2><span class="chev">▼</span></div>
+        <div class="card-body" id="vdclBody"></div>
+      </div>
+
+      <div class="card" id="sec-missed"><div class="card-head" onclick="toggleCard(this)"><h2>Missed Callbacks <span class="meta" id="missedMeta"></span></h2><span class="chev">▼</span><div class="card-tools"><button class="btn ghost" onclick="event.stopPropagation();exportTable('missedTable','missed_callbacks.csv')">⬇ CSV</button></div></div>
+        <div class="card-body">
+          <div class="filter-row"><label>Campaign</label><div class="ms-wrap" id="ms-missedCamp"></div></div>
+          <div class="tbl-wrap"><table id="missedTable"><thead><tr><th>Phone</th><th>Timeout Time</th><th>Campaign</th><th>Last Agent</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="card" id="sec-dpc"><div class="card-head" onclick="toggleCard(this)"><h2>DPC &mdash; Dropped, Never Called Back <span class="meta" id="dpcMeta"></span></h2><span class="chev">▼</span><div class="card-tools"><button class="btn ghost" onclick="event.stopPropagation();exportTable('dpcTable','dpc_drops.csv')">⬇ CSV</button></div></div>
+        <div class="card-body">
+          <div class="filter-row"><label>Campaign</label><div class="ms-wrap" id="ms-dpcCamp"></div></div>
+          <div class="tbl-wrap"><table id="dpcTable"><thead><tr><th>Phone</th><th>Drop Time</th><th>Agent</th><th>Campaign</th><th>Duration</th><th></th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="card" id="sec-transfers"><div class="card-head" onclick="toggleCard(this)"><h2>Transfers</h2><span class="chev">▼</span></div>
+        <div class="card-body">
+          <h3 style="font-size:12px;color:var(--text-dim);margin-bottom:8px">INCOMPLETE TRANSFERS (no inbound follow-up) <span class="meta" id="badTrMeta"></span></h3>
+          <div class="tbl-wrap" style="margin-bottom:20px"><table id="badTrTable"><thead><tr><th>Phone</th><th>Transfer Time</th><th>Agent</th><th>Campaign</th><th></th></tr></thead><tbody></tbody></table></div>
+          <h3 style="font-size:12px;color:var(--text-dim);margin-bottom:8px">CORRECT TRANSFERS RECEIVED BY AGENT</h3>
+          <div class="tbl-wrap"><table id="rcvTrTable"><thead><tr><th>Agent</th><th>Transfers Received</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="card" id="sec-openers"><div class="card-head" onclick="toggleCard(this)"><h2>Openers &mdash; Transfer Breakdown</h2><span class="chev">▼</span></div>
+        <div class="card-body">
+          <div class="tbl-wrap" style="margin-bottom:20px"><table id="openerBrTable"><thead></thead><tbody></tbody></table></div>
+          <h3 style="font-size:12px;color:var(--text-dim);margin:14px 0 8px">LOWEST TRANSFER RATE (calls &gt; 2min)</h3>
+          <div class="tbl-wrap"><table id="openerRateTable"><thead><tr><th>Agent</th><th>Calls &gt;2min</th><th>Transfers</th><th>Rate</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="card" id="sec-long"><div class="card-head" onclick="toggleCard(this)"><h2>Long Calls, No Follow-up</h2><span class="chev">▼</span><div class="card-tools">
+          <select id="longThreshold" onchange="setLongThreshold()" style="background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 8px;font-size:11.5px">
+            <option value="1200">20+ min</option><option value="1500">25+ min</option><option value="1800">30+ min</option>
+          </select>
+          <button class="btn ghost" onclick="event.stopPropagation();exportTable('longTable','long_calls_no_followup.csv')">⬇ CSV</button>
+        </div></div>
+        <div class="card-body"><div class="tbl-wrap"><table id="longTable"><thead><tr><th>Agent</th><th>Long Calls</th><th>No Follow-up</th><th></th></tr></thead><tbody></tbody></table></div></div>
+      </div>
+
       <div class="card collapsed" id="sec-settings"><div class="card-head" onclick="toggleCard(this)"><h2>Settings</h2><span class="chev">▼</span></div>
         <div class="card-body">
-          <h3 style="font-size:12px;color:var(--text-dim);margin-bottom:4px">ALERT THRESHOLDS</h3>
+          <h3 style="font-size:12px;color:var(--text-dim);margin-bottom:10px">AGENT ROLES (one name per line)</h3>
+          <div class="settings-grid">
+            <div><label style="font-size:11px;color:var(--accent)">Closers</label><textarea id="roleCloser"></textarea></div>
+            <div><label style="font-size:11px;color:var(--amber)">Openers</label><textarea id="roleOpener"></textarea></div>
+            <div><label style="font-size:11px;color:var(--purple)">Retention</label><textarea id="roleRetention"></textarea></div>
+          </div>
+          <div style="margin-top:10px"><button class="btn" onclick="saveRoles()">Save Roles</button> <button class="btn ghost" onclick="resetRoles()">Reset to Defaults</button></div>
+          <div class="empty-note" style="margin-top:8px">No roles are pre-set for this company — leave blank and every agent is treated the same (no Closer/Opener/Retention tag), or fill these in once you know who's who. Cards like Agent Scorecard / Openers Breakdown adapt automatically.</div>
+
+          <h3 style="font-size:12px;color:var(--text-dim);margin:22px 0 4px">ALERT THRESHOLDS</h3>
           <div class="th-grid" id="thGrid"></div>
           <div style="margin-top:10px"><button class="btn" onclick="saveThresholds()">Save Thresholds</button></div>
         </div>
@@ -218,10 +362,17 @@ tr.total-row td{font-weight:700;background:var(--panel2);border-top:1px solid va
 
 <script>
 /* ================= CONFIG =================
-   TAX Daily Monitor — independent from Ytel_Daily_Monitor_v2 / command-center.
-   Raw Ytel-only export, no CRM merge. Everyone dialing is treated as one
-   undifferentiated agent pool (no Closer/Opener/Retention split) per explicit
-   product decision — this dashboard does not track agent roles. */
+   TAX Daily Monitor — independent from Ytel_Daily_Monitor_v2 / command-center
+   in the sibling ADP repo. Raw Ytel-only export, no CRM merge. No roles are
+   pre-seeded (unlike the sibling repo's hardcoded agent lists) since this
+   company's agent names aren't known in advance — fill them in via Settings
+   once you have them; until then every agent is untagged and treated the
+   same everywhere (Agent Scorecard, Openers Breakdown, Rankings). */
+const DEFAULT_ROLES = { closer: [], opener: [], retention: [] };
+let CLOSERS = new Set(DEFAULT_ROLES.closer);
+let OPENERS = new Set(DEFAULT_ROLES.opener);
+let RETENTION = new Set(DEFAULT_ROLES.retention);
+
 const DEFAULT_THRESHOLDS = {
   dncCalls: 20, dropPct: 5, deadPct: 30, agentShortPct: 55, agentMinCalls: 30, redials: 15
 };
@@ -350,6 +501,8 @@ function clearAll(){
   document.getElementById('emptyState').style.display='block';
   document.getElementById('hint').style.display='none';
   ['hourChart','dncHourChart','dropHourChart'].forEach(id=>{ if(window['_'+id]){ window['_'+id].destroy(); window['_'+id]=null; } });
+  window._kpiDir='all';
+  document.querySelectorAll('#sec-kpi .af-btn').forEach(b=>b.classList.toggle('active', b.dataset.dir==='all'));
 }
 
 /* ================= ANALYSIS ================= */
@@ -387,44 +540,14 @@ function rerunIfLoaded(){
 }
 
 function buildDashboard(){
-  // ---- basic sets ----
-  const outboundCalls = calls.filter(r=>r._direction==='outbound');
-  const dialedUnique = new Set(outboundCalls.map(r=>r._phone).filter(Boolean));
-  const contactedUnique = new Set(outboundCalls.filter(r=>r._sec>30).map(r=>r._phone).filter(Boolean));
-  const inboundCalls = calls.filter(r=>r._direction==='inbound');
-  const receivedUnique = new Set(inboundCalls.map(r=>r._phone).filter(Boolean));
+  // ---- sets shared by Issues Detected & the hour charts ----
+  // Deliberately always computed from ALL calls, regardless of the KPI
+  // section's own Inbound/Outbound filter below — that filter only affects
+  // the Overview tiles, nothing else on the page.
   const totalCalls = calls.length;
   const dropRows = calls.filter(r=>r._status==='DROP');
   const dncRows = calls.filter(r=>r._status==='DNC');
   const deadRows = calls.filter(r=>r._sec<=30);
-  const avgTalk = totalCalls? calls.reduce((a,r)=>a+r._sec,0)/totalCalls : 0;
-
-  // ---- unique-call duration brackets (any direction) ----
-  // uniquePhonesAll = every distinct phone touched in range (inbound+outbound),
-  // phoneBest = that phone's longest single call — mirrors Ytel_Daily_Monitor_v2's
-  // "Unique Calls >X Min" KPI tiles.
-  const uniquePhonesAll = new Set(calls.map(r=>r._phone).filter(Boolean));
-  const phoneBest = {};
-  calls.forEach(r=>{ if(r._phone && r._sec>(phoneBest[r._phone]||0)) phoneBest[r._phone]=r._sec; });
-  const gt2mUnique = Object.values(phoneBest).filter(s=>s>120).length;
-  const gt15mUnique = Object.values(phoneBest).filter(s=>s>900).length;
-  const gt30mUnique = Object.values(phoneBest).filter(s=>s>1800).length;
-
-  // ---- dialed after DNC ----
-  const firstDncTs = {};
-  dncRows.forEach(r=>{ if(!firstDncTs[r._phone] || r._ts<firstDncTs[r._phone]) firstDncTs[r._phone]=r._ts; });
-  const dialedAfterDncPhones = new Set();
-  const afterDncDetail = {};
-  calls.forEach(r=>{
-    const fdt = firstDncTs[r._phone];
-    if(fdt!==undefined && r._direction==='outbound' && r._ts>fdt){
-      dialedAfterDncPhones.add(r._phone);
-      if(!afterDncDetail[r._phone]) afterDncDetail[r._phone]={count:0, agents:new Set()};
-      afterDncDetail[r._phone].count++;
-      afterDncDetail[r._phone].agents.add(r._name);
-    }
-  });
-  window._afterDncDetail = afterDncDetail;
 
   // ---- dispo breakdown ----
   const dispoCounts = {};
@@ -438,17 +561,30 @@ function buildDashboard(){
   dncRows.forEach(r=>{ if(dncHourCounts[r._hour]!==undefined) dncHourCounts[r._hour]++; });
   dropRows.forEach(r=>{ if(dropHourCounts[r._hour]!==undefined) dropHourCounts[r._hour]++; });
 
-  // ---- agent map (no role split — everyone is one pool) ----
+  // ---- campaign map ----
+  const campMap = {};
+  function campBucket(c){ if(!campMap[c]) campMap[c]={calls:0, phones:new Set(), phonesContacted:new Set(), drops:0, dnc:0}; return campMap[c]; }
+  calls.forEach(r=>{
+    const cb = campBucket(r._campaign);
+    cb.calls++;
+    if(r._phone) cb.phones.add(r._phone);
+    if(r._sec>30 && r._phone) cb.phonesContacted.add(r._phone);
+    if(r._status==='DROP') cb.drops++;
+    if(r._status==='DNC') cb.dnc++;
+  });
+
+  // ---- agent map ----
   const agentEligible = calls.filter(r=>r._name!=='Unknown' && r._user!=='VDCL' && r._user!=='VDAD');
   const agentMap = {};
-  function agentBucket(name){ if(!agentMap[name]) agentMap[name]={ total:0, inbound:0, outbound:0, sec:0, short:0, r2m:0, r5to10:0, r10to15:0, r15to20:0, r20to30:0, gt30:0, drops:0, phoneOutCounts:{} }; return agentMap[name]; }
+  function agentBucket(name){ if(!agentMap[name]) agentMap[name]={ total:0, inbound:0, outbound:0, sec:0, short:0, r2m:0, r2to5:0, r5to10:0, r10to15:0, r15to20:0, r20to30:0, gt30:0, drops:0, phoneOutCounts:{}, phoneMaxSec:{}, phoneRecordings:{}, lastCallTs:{}, outboundPhones:new Set(), contactedPhones:new Set() }; return agentMap[name]; }
   agentEligible.forEach(r=>{
     const b = agentBucket(r._name);
     b.total++;
-    if(r._direction==='inbound') b.inbound++; else if(r._direction==='outbound') b.outbound++;
+    if(r._direction==='inbound') b.inbound++; else if(r._direction==='outbound'){ b.outbound++; if(r._phone){ b.outboundPhones.add(r._phone); if(r._sec>30) b.contactedPhones.add(r._phone); } }
     b.sec += r._sec;
     if(r._sec<=30) b.short++;
     else if(r._sec<120) b.r2m++;
+    else if(r._sec<300) b.r2to5++;
     else if(r._sec<600) b.r5to10++;
     else if(r._sec<900) b.r10to15++;
     else if(r._sec<1200) b.r15to20++;
@@ -456,6 +592,12 @@ function buildDashboard(){
     else b.gt30++;
     if(r._status==='DROP') b.drops++;
     if(r._direction==='outbound' && r._phone){ b.phoneOutCounts[r._phone]=(b.phoneOutCounts[r._phone]||0)+1; }
+    if(r._sec>=1200 && r._phone){
+      if(!b.phoneMaxSec[r._phone] || r._sec>b.phoneMaxSec[r._phone]) b.phoneMaxSec[r._phone]=r._sec;
+      if(!b.phoneRecordings[r._phone]) b.phoneRecordings[r._phone]=[];
+      b.phoneRecordings[r._phone].push({sec:r._sec, recording:r._recording, ts:r._ts});
+    }
+    if(!b.lastCallTs[r._phone] || r._ts>b.lastCallTs[r._phone]) b.lastCallTs[r._phone]=r._ts;
   });
 
   // redials: phones an agent called 3+ times outbound in the range
@@ -466,11 +608,93 @@ function buildDashboard(){
     if(redialed.length) redialFlags[name]=redialed.length;
   });
 
+  // ---- per-phone last-call-anywhere (for "no follow-up" logic) ----
+  const phoneAllCalls = {};
+  calls.forEach(r=>{ if(!r._phone) return; (phoneAllCalls[r._phone]=phoneAllCalls[r._phone]||[]).push(r); });
+  Object.values(phoneAllCalls).forEach(arr=>arr.sort((a,b)=>a._ts-b._ts));
+  window._phoneAllCalls = phoneAllCalls;
+
+  // ---- missed callbacks (TIMEOT with no follow-up) ----
+  const missedList = [];
+  Object.entries(phoneAllCalls).forEach(([phone,arr])=>{
+    const timeouts = arr.filter(r=>r._status==='TIMEOT');
+    if(!timeouts.length) return;
+    const lastTimeout = timeouts[timeouts.length-1];
+    const followUp = arr.some(r=>r._ts>lastTimeout._ts && r._status!=='TIMEOT');
+    if(!followUp){
+      missedList.push({phone, ts:lastTimeout._ts, camp:lastTimeout._campaign, agent:lastTimeout._name});
+    }
+  });
+
+  // ---- DPC drops never called back (per-event) ----
+  const dpcFlagged = {};
+  Object.entries(phoneAllCalls).forEach(([phone,arr])=>{
+    const dpcEvents = arr.filter(r=>r._status==='DPC');
+    if(!dpcEvents.length) return;
+    dpcEvents.forEach(ev=>{
+      const hasFollowUp = arr.some(r=>r._ts>ev._ts && r._status!=='DPC');
+      if(!hasFollowUp){
+        if(!dpcFlagged[phone]) dpcFlagged[phone]={events:[]};
+        dpcFlagged[phone].events.push({ts:ev._ts, agent:ev._name, camp:ev._campaign, sec:ev._sec, recording:ev._recording});
+      }
+    });
+  });
+
+  // ---- incomplete transfers (CLtrns with no later inbound call) ----
+  const badTransferFlagged = {};
+  const inboundCallsByPhone = {};
+  calls.filter(r=>r._direction==='inbound').forEach(r=>{ (inboundCallsByPhone[r._phone]=inboundCallsByPhone[r._phone]||[]).push(r); });
+  Object.values(inboundCallsByPhone).forEach(arr=>arr.sort((a,b)=>a._ts-b._ts));
+  const receivedTransfers = {};
+  Object.entries(phoneAllCalls).forEach(([phone,arr])=>{
+    const cltrnsEvents = arr.filter(r=>r._status==='CLtrns');
+    if(!cltrnsEvents.length) return;
+    const inbounds = inboundCallsByPhone[phone]||[];
+    cltrnsEvents.forEach(ev=>{
+      const followUp = inbounds.find(f=>f._ts>ev._ts);
+      if(!followUp){
+        if(!badTransferFlagged[phone]) badTransferFlagged[phone]={events:[]};
+        badTransferFlagged[phone].events.push({ts:ev._ts, agent:ev._name, camp:ev._campaign, sec:ev._sec, recording:ev._recording});
+      } else {
+        const agent = followUp._name;
+        if(!receivedTransfers[agent]) receivedTransfers[agent]={count:0};
+        receivedTransfers[agent].count++;
+      }
+    });
+  });
+
+  // ---- openers transfer breakdown ----
+  const brackets = [
+    {key:'dead', label:'Dead ≤30s', test:sec=>sec<=30},
+    {key:'b30_2', label:'30s–2min', test:sec=>sec>30&&sec<120},
+    {key:'b2_5', label:'2–5min', test:sec=>sec>=120&&sec<300},
+    {key:'b5_10', label:'5–10min', test:sec=>sec>=300&&sec<600},
+    {key:'b10_15', label:'10–15min', test:sec=>sec>=600&&sec<900},
+    {key:'b15_20', label:'15–20min', test:sec=>sec>=900&&sec<1200},
+    {key:'b20_30', label:'20–30min', test:sec=>sec>=1200&&sec<1800},
+    {key:'b30p', label:'30+min', test:sec=>sec>=1800}
+  ];
+  const openerAgents = agentEligible.filter(r=>OPENERS.has(r._name.toLowerCase()));
+  const openerByAgent = {};
+  openerAgents.forEach(r=>{
+    const name=r._name;
+    if(!openerByAgent[name]){ openerByAgent[name]={}; brackets.forEach(br=>openerByAgent[name][br.key]={total:0,trns:0,records:[]}); }
+    const br = brackets.find(b=>b.test(r._sec));
+    if(!br) return;
+    const cell = openerByAgent[name][br.key];
+    cell.total++;
+    if(r._status==='CLtrns'){ cell.trns++; cell.records.push({phone:r._phone, sec:r._sec, recording:r._recording}); }
+  });
+
   // ---- issues ----
+  // kpiAll = the "All directions" KPI dataset — reused for the DNC-after
+  // issue check below, the KPI section's initial (default) render, and the
+  // Copy Summary digest, so it's only computed once per buildDashboard() run.
+  const kpiAll = computeKpiData(calls);
   const dropPct = totalCalls? dropRows.length/totalCalls*100 : 0;
   const deadPct = totalCalls? deadRows.length/totalCalls*100 : 0;
   const issues = [];
-  if(dialedAfterDncPhones.size>0) issues.push({sev:'crit', text:'<b>'+dialedAfterDncPhones.size+'</b> phone(s) dialed after being marked DNC — compliance violation.', action:'showAfterDnc'});
+  if(kpiAll.dialedAfterDncPhones.size>0) issues.push({sev:'crit', text:'<b>'+kpiAll.dialedAfterDncPhones.size+'</b> phone(s) dialed after being marked DNC — compliance violation.', action:'showAfterDnc'});
   if(dncRows.length>TH.dncCalls) issues.push({sev:'warn', text:'<b>'+dncRows.length+'</b> DNC calls this period (threshold '+TH.dncCalls+').'});
   if(dropPct>TH.dropPct) issues.push({sev:'warn', text:'Drop rate at <b>'+dropPct.toFixed(1)+'%</b> (threshold '+TH.dropPct+'%).'});
   if(deadPct>TH.deadPct) issues.push({sev:'warn', text:'<b>'+deadPct.toFixed(1)+'%</b> of calls are ≤30s (threshold '+TH.deadPct+'%).'});
@@ -482,13 +706,88 @@ function buildDashboard(){
   if(!issues.length) issues.push({sev:'ok', text:'No issues detected for this range.'});
 
   // ================= RENDER =================
-  renderKpis({totalCalls, dialedUnique, contactedUnique, receivedUnique, avgTalk, dropRows, dncRows, dialedAfterDncPhones, uniquePhonesAll, gt2mUnique, gt15mUnique, gt30mUnique});
+  window._kpiRows = calls; // full (all-direction) call set for this date range — renderKpisForDir re-filters this by direction on demand
+  renderKpisForDir(window._kpiDir||'all');
   renderIssues(issues);
   renderHourCharts(hourCounts, dncHourCounts, dropHourCounts);
   renderDispo(dispoCounts, dispoNames, totalCalls);
   renderAgentTable(agentMap, redialFlags);
+  window._agentMapForRank = agentMap;
+  renderRankTable(agentMap, window._rankMode||'volume');
+  window._campMapForFilter = campMap;
+  renderCampTable(campMap);
+  renderTopNumbers(calls);
+  renderVdcl();
+  window._missedList = missedList;
+  populateCampFilter('ms-missedCamp', Object.keys(campMap), ()=>renderMissed());
+  renderMissed();
+  window._dpcFlagged = dpcFlagged;
+  populateCampFilter('ms-dpcCamp', Object.keys(campMap), ()=>renderDpc());
+  renderDpc();
+  window._badTransferFlagged = badTransferFlagged;
+  renderBadTransfers(badTransferFlagged);
+  renderReceivedTransfers(receivedTransfers);
+  renderOpenerBreakdown(openerByAgent, brackets);
+  renderOpenerRates(openerByAgent, brackets);
+  window._agentMapForLong = agentMap;
+  renderLongNoFollow(agentMap);
+  renderAgentScorecard(agentMap, openerByAgent);
 
-  window._summary = {totalCalls, contactRate: pct(contactedUnique.size, dialedUnique.size), drops:dropRows.length, dnc:dncRows.length, afterDnc:dialedAfterDncPhones.size, issues};
+  window._summary = {totalCalls, contactRate: pct(kpiAll.contactedUnique.size, kpiAll.dialedUnique.size), drops:dropRows.length, dnc:dncRows.length, afterDnc:kpiAll.dialedAfterDncPhones.size, issues};
+}
+
+/* ================= KPI DIRECTION FILTER =================
+   Filters ONLY the Overview KPI tiles by call direction — Issues Detected,
+   the hour charts, Dispositions, Agent Performance, Rankings, Scorecard,
+   Campaign Breakdown, etc. are unaffected and always reflect the full
+   (all-direction) date range. */
+window._kpiDir = 'all';
+function setKpiDir(dir, btn){
+  window._kpiDir = dir;
+  document.querySelectorAll('#sec-kpi .af-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderKpisForDir(dir);
+}
+function renderKpisForDir(dir){
+  const rows = window._kpiRows||[];
+  const filtered = dir==='all' ? rows : rows.filter(r=>r._direction===dir);
+  renderKpis(computeKpiData(filtered));
+}
+// Self-contained: recomputes everything the KPI tiles need from whatever row
+// set it's given (all calls, or just inbound / just outbound).
+function computeKpiData(rows){
+  const totalCalls = rows.length;
+  const outboundCalls = rows.filter(r=>r._direction==='outbound');
+  const inboundCalls = rows.filter(r=>r._direction==='inbound');
+  const dialedUnique = new Set(outboundCalls.map(r=>r._phone).filter(Boolean));
+  const contactedUnique = new Set(outboundCalls.filter(r=>r._sec>30).map(r=>r._phone).filter(Boolean));
+  const receivedUnique = new Set(inboundCalls.map(r=>r._phone).filter(Boolean));
+  const dropRows = rows.filter(r=>r._status==='DROP');
+  const dncRows = rows.filter(r=>r._status==='DNC');
+  const avgTalk = totalCalls? rows.reduce((a,r)=>a+r._sec,0)/totalCalls : 0;
+
+  const uniquePhonesAll = new Set(rows.map(r=>r._phone).filter(Boolean));
+  const phoneBest = {};
+  rows.forEach(r=>{ if(r._phone && r._sec>(phoneBest[r._phone]||0)) phoneBest[r._phone]=r._sec; });
+  const gt2mUnique = Object.values(phoneBest).filter(s=>s>120).length;
+  const gt15mUnique = Object.values(phoneBest).filter(s=>s>900).length;
+  const gt30mUnique = Object.values(phoneBest).filter(s=>s>1800).length;
+
+  const firstDncTs = {};
+  dncRows.forEach(r=>{ if(!firstDncTs[r._phone] || r._ts<firstDncTs[r._phone]) firstDncTs[r._phone]=r._ts; });
+  const dialedAfterDncPhones = new Set();
+  const afterDncDetail = {};
+  rows.forEach(r=>{
+    const fdt = firstDncTs[r._phone];
+    if(fdt!==undefined && r._direction==='outbound' && r._ts>fdt){
+      dialedAfterDncPhones.add(r._phone);
+      if(!afterDncDetail[r._phone]) afterDncDetail[r._phone]={count:0, agents:new Set()};
+      afterDncDetail[r._phone].count++;
+      afterDncDetail[r._phone].agents.add(r._name);
+    }
+  });
+
+  return {totalCalls, dialedUnique, contactedUnique, receivedUnique, avgTalk, dropRows, dncRows, dialedAfterDncPhones, uniquePhonesAll, gt2mUnique, gt15mUnique, gt30mUnique, afterDncDetail};
 }
 
 /* ================= RENDER: KPI =================
@@ -496,9 +795,10 @@ function buildDashboard(){
    label / big value / small sub) — light cards, matches that dashboard's
    "at a glance" grid even though the rest of this page stays dark. */
 function renderKpis(d){
+  window._afterDncDetail = d.afterDncDetail;
   const g = document.getElementById('kpiGrid');
   const contactRate = d.dialedUnique.size? (d.contactedUnique.size/d.dialedUnique.size*100) : 0;
-  const afterDncCalls = Array.from(window._afterDncDetail?Object.values(window._afterDncDetail):[]).reduce((a,x)=>a+x.count,0);
+  const afterDncCalls = Object.values(d.afterDncDetail||{}).reduce((a,x)=>a+x.count,0);
   const tiles = [
     {l:'Total Calls', v:d.totalCalls.toLocaleString(), sub:'all dispositions', cls:'blue'},
     {l:'Unique Numbers Received', v:d.receivedUnique.size.toLocaleString(), sub:'distinct inbound phone numbers', cls:'blue'},
@@ -555,6 +855,13 @@ function renderDispo(dispoCounts, dispoNames, total){
 }
 
 /* ================= RENDER: Agent Table ================= */
+function roleTag(name){
+  const n = name.toLowerCase();
+  if(CLOSERS.has(n)) return '<span class="role-tag role-closer">CLOSER</span>';
+  if(OPENERS.has(n)) return '<span class="role-tag role-opener">OPENER</span>';
+  if(RETENTION.has(n)) return '<span class="role-tag role-retention">RETENTION</span>';
+  return '';
+}
 function renderAgentTable(agentMap, redialFlags){
   const thead = document.querySelector('#agentTable thead');
   const cols = ['Agent','Total','Inbound','Outbound','Short%','<2m','5-10m','10-15m','15-20m','20-30m','30m+','Avg Talk','Total Talk','Drops','Redials'];
@@ -565,12 +872,270 @@ function renderAgentTable(agentMap, redialFlags){
     avgTalk: b.total? b.sec/b.total:0, totalTalk:b.sec, drops:b.drops, redials: redialFlags[name]||0
   })).sort((a,b)=>b.total-a.total);
   const totalRow = rows.reduce((a,r)=>({total:a.total+r.total, inbound:a.inbound+r.inbound, outbound:a.outbound+r.outbound, totalTalk:a.totalTalk+r.totalTalk, drops:a.drops+r.drops}),{total:0,inbound:0,outbound:0,totalTalk:0,drops:0});
-  let html = rows.map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+r.total+'</td><td>'+r.inbound+'</td><td>'+r.outbound+'</td><td>'+r.shortPct.toFixed(1)+'%</td><td>'+r.r2m+'</td><td>'+r.r5to10+'</td><td>'+r.r10to15+'</td><td>'+r.r15to20+'</td><td>'+r.r20to30+'</td><td>'+r.gt30+'</td><td>'+fmtDur(r.avgTalk)+'</td><td>'+fmtDur(r.totalTalk)+'</td><td>'+r.drops+'</td><td>'+(r.redials||'—')+'</td></tr>').join('');
+  let html = rows.map(r=>'<tr><td>'+esc(r.name)+roleTag(r.name)+'</td><td>'+r.total+'</td><td>'+r.inbound+'</td><td>'+r.outbound+'</td><td>'+r.shortPct.toFixed(1)+'%</td><td>'+r.r2m+'</td><td>'+r.r5to10+'</td><td>'+r.r10to15+'</td><td>'+r.r15to20+'</td><td>'+r.r20to30+'</td><td>'+r.gt30+'</td><td>'+fmtDur(r.avgTalk)+'</td><td>'+fmtDur(r.totalTalk)+'</td><td>'+r.drops+'</td><td>'+(r.redials||'—')+'</td></tr>').join('');
   html += '<tr class="total-row"><td>TOTAL</td><td>'+totalRow.total+'</td><td>'+totalRow.inbound+'</td><td>'+totalRow.outbound+'</td><td>—</td><td colspan="6">—</td><td>—</td><td>'+fmtDur(totalRow.totalTalk)+'</td><td>'+totalRow.drops+'</td><td>—</td></tr>';
   document.querySelector('#agentTable tbody').innerHTML = html;
 }
 
-/* ================= SORT / EXPORT / MODAL ================= */
+/* ================= RENDER: Rankings ================= */
+function setRankMode(mode, btn){
+  window._rankMode = mode;
+  document.querySelectorAll('#sec-rank .af-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRankTable(window._agentMapForRank, mode);
+}
+function renderRankTable(agentMap, mode){
+  if(!agentMap) return;
+  const thead = document.querySelector('#rankTable thead');
+  let rows = Object.entries(agentMap).map(([name,b])=>{
+    const outUnique = Object.keys(b.phoneOutCounts).length;
+    return {name, total:b.total, drops:b.drops, dropPct: b.total?(b.drops/b.total*100):0, outUnique, sec:b.sec, avgTalk: b.total? b.sec/b.total:0};
+  });
+  if(mode==='volume'){
+    thead.innerHTML = '<tr><th>#</th><th>Agent</th><th>Total Calls</th><th>Avg Talk</th></tr>';
+    rows.sort((a,b)=>b.total-a.total);
+    document.querySelector('#rankTable tbody').innerHTML = rows.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(r.name)+roleTag(r.name)+'</td><td>'+r.total+'</td><td>'+fmtDur(r.avgTalk)+'</td></tr>').join('');
+  } else if(mode==='contact'){
+    thead.innerHTML = '<tr><th>#</th><th>Agent</th><th>Outbound Unique</th><th>Contacted &gt;30s</th><th>Contact %</th></tr>';
+    const detailed = Object.entries(agentMap).map(([name,b])=>({
+      name, outUnique:b.outboundPhones.size, contacted:b.contactedPhones.size,
+      contactPct: b.outboundPhones.size? (b.contactedPhones.size/b.outboundPhones.size*100):0
+    })).filter(r=>r.outUnique>=10);
+    detailed.sort((a,b)=>b.contactPct-a.contactPct);
+    document.querySelector('#rankTable tbody').innerHTML = detailed.length ? detailed.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(r.name)+roleTag(r.name)+'</td><td>'+r.outUnique+'</td><td>'+r.contacted+'</td><td>'+r.contactPct.toFixed(1)+'%</td></tr>').join('') : '<tr><td colspan="5" class="empty-note">No agent with 10+ outbound unique numbers.</td></tr>';
+  } else if(mode==='drop'){
+    thead.innerHTML = '<tr><th>#</th><th>Agent</th><th>Drops</th><th>Total Calls</th><th>Drop %</th></tr>';
+    rows.sort((a,b)=>b.dropPct-a.dropPct);
+    document.querySelector('#rankTable tbody').innerHTML = rows.filter(r=>r.total>=10).map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(r.name)+roleTag(r.name)+'</td><td>'+r.drops+'</td><td>'+r.total+'</td><td>'+r.dropPct.toFixed(1)+'%</td></tr>').join('');
+  }
+}
+
+/* ================= RENDER: Campaign Table ================= */
+function renderCampTable(campMap){
+  const rows = Object.entries(campMap).sort((a,b)=>b[1].calls-a[1].calls);
+  const totals = {calls:0, contacted:0, phones:0, drops:0, dnc:0};
+  let html = rows.map(([name,c])=>{
+    totals.calls+=c.calls; totals.drops+=c.drops; totals.dnc+=c.dnc;
+    return '<tr><td>'+esc(name)+'</td><td>'+c.calls+'</td><td>'+c.phonesContacted.size+'</td><td>'+pct(c.phonesContacted.size, c.phones.size)+'</td><td>'+c.drops+'</td><td>'+c.dnc+'</td></tr>';
+  }).join('');
+  html += '<tr class="total-row"><td>TOTAL</td><td>'+totals.calls+'</td><td colspan="2">—</td><td>'+totals.drops+'</td><td>'+totals.dnc+'</td></tr>';
+  document.querySelector('#campTable tbody').innerHTML = html;
+}
+
+/* ================= RENDER: Top Numbers ================= */
+function renderTopNumbers(calls){
+  const map = {};
+  calls.forEach(r=>{ if(!r._phone) return; if(!map[r._phone]) map[r._phone]={count:0, camps:new Set(), agents:new Set()}; map[r._phone].count++; map[r._phone].camps.add(r._campaign); if(r._name!=='Unknown') map[r._phone].agents.add(r._name); });
+  const top = Object.entries(map).sort((a,b)=>b[1].count-a[1].count).slice(0,5);
+  document.querySelector('#topTable tbody').innerHTML = top.map(([phone,d])=>
+    '<tr><td class="mono">'+esc(phone)+'</td><td>'+d.count+'</td><td>'+Array.from(d.camps).join(', ')+'</td><td>'+Array.from(d.agents).join(', ')+'</td></tr>').join('');
+}
+
+/* ================= RENDER: VDCL ================= */
+function renderVdcl(){
+  const vdclCalls = calls.filter(r=>r._user==='VDCL'||r._user==='VDAD');
+  const b = document.getElementById('vdclBody');
+  if(!vdclCalls.length){ b.innerHTML='<div class="empty-note">No VDCL/VDAD activity in this range.</div>'; return; }
+  const byStatus = {};
+  vdclCalls.forEach(r=>{ byStatus[r._status||'(blank)'] = (byStatus[r._status||'(blank)']||0)+1; });
+  b.innerHTML = '<div class="kpi-grid"><div class="kpi"><div class="v">'+vdclCalls.length+'</div><div class="l">VDCL/VDAD Calls</div></div></div>'+
+    '<div class="tbl-wrap" style="margin-top:14px"><table><thead><tr><th>Status</th><th>Calls</th></tr></thead><tbody>'+
+    Object.entries(byStatus).sort((a,b)=>b[1]-a[1]).map(([k,c])=>'<tr><td>'+esc(k)+'</td><td>'+c+'</td></tr>').join('')+'</tbody></table></div>';
+}
+
+/* ================= RENDER: Missed Callbacks ================= */
+function renderMissed(){
+  const camps = getMsValues('ms-missedCamp');
+  let list = window._missedList||[];
+  if(camps.length) list = list.filter(m=>camps.includes(m.camp));
+  document.getElementById('missedMeta').textContent = '('+list.length+')';
+  document.querySelector('#missedTable tbody').innerHTML = list.length ? list.sort((a,b)=>b.ts-a.ts).map(m=>
+    '<tr><td class="mono">'+esc(m.phone)+'</td><td>'+new Date(m.ts).toLocaleString()+'</td><td>'+esc(m.camp)+'</td><td>'+esc(m.agent)+'</td></tr>').join('')
+    : '<tr><td colspan="4" class="empty-note">None</td></tr>';
+}
+
+/* ================= RENDER: DPC ================= */
+function renderDpc(){
+  const camps = getMsValues('ms-dpcCamp');
+  const flagged = window._dpcFlagged||{};
+  let rows = [];
+  Object.entries(flagged).forEach(([phone,d])=>{ d.events.forEach(ev=>{ if(!camps.length || camps.includes(ev.camp)) rows.push({phone, ...ev}); }); });
+  document.getElementById('dpcMeta').textContent = '('+new Set(rows.map(r=>r.phone)).size+')';
+  document.querySelector('#dpcTable tbody').innerHTML = rows.length ? rows.sort((a,b)=>b.ts-a.ts).map(r=>
+    '<tr><td class="mono click-num" onclick=\'showPhoneRecs('+attrJson([{phone:r.phone, sec:r.sec, recording:r.recording}])+', "'+esc(r.phone)+' — Dropped Call")\'>⚠️ '+esc(r.phone)+'</td><td>'+new Date(r.ts).toLocaleString()+'</td><td>'+esc(r.agent)+'</td><td>'+esc(r.camp)+'</td><td>'+fmtDur(r.sec)+'</td><td></td></tr>').join('')
+    : '<tr><td colspan="6" class="empty-note">None</td></tr>';
+}
+
+/* ================= RENDER: Transfers ================= */
+function renderBadTransfers(flagged){
+  let rows = [];
+  Object.entries(flagged).forEach(([phone,d])=>{ d.events.forEach(ev=>rows.push({phone, ...ev})); });
+  document.getElementById('badTrMeta').textContent = '('+new Set(rows.map(r=>r.phone)).size+')';
+  document.querySelector('#badTrTable tbody').innerHTML = rows.length ? rows.sort((a,b)=>b.ts-a.ts).map(r=>
+    '<tr><td class="mono click-num" onclick=\'showPhoneRecs('+attrJson([{phone:r.phone, sec:r.sec, recording:r.recording}])+', "'+esc(r.phone)+' — Incomplete Transfer")\'>'+esc(r.phone)+'</td><td>'+new Date(r.ts).toLocaleString()+'</td><td>'+esc(r.agent)+'</td><td>'+esc(r.camp)+'</td><td></td></tr>').join('')
+    : '<tr><td colspan="5" class="empty-note">None</td></tr>';
+}
+function renderReceivedTransfers(receivedTransfers){
+  const rows = Object.entries(receivedTransfers).sort((a,b)=>b[1].count-a[1].count);
+  document.querySelector('#rcvTrTable tbody').innerHTML = rows.length ? rows.map(([name,d])=>'<tr><td>'+esc(name)+roleTag(name)+'</td><td>'+d.count+'</td></tr>').join('') : '<tr><td colspan="2" class="empty-note">None</td></tr>';
+}
+
+/* ================= RENDER: Openers ================= */
+function renderOpenerBreakdown(openerByAgent, brackets){
+  const names = Object.keys(openerByAgent);
+  const thead = document.querySelector('#openerBrTable thead');
+  thead.innerHTML = '<tr><th>Agent</th>'+brackets.map(b=>'<th>'+b.label+'</th>').join('')+'</tr>';
+  if(!names.length){ document.querySelector('#openerBrTable tbody').innerHTML='<tr><td colspan="'+(brackets.length+1)+'" class="empty-note">No opener activity in this range.</td></tr>'; return; }
+  const totals = {}; brackets.forEach(b=>totals[b.key]={total:0,trns:0});
+  let html = names.map(name=>{
+    const row = openerByAgent[name];
+    return '<tr><td>'+esc(name)+'</td>'+brackets.map(b=>{
+      const c = row[b.key]; totals[b.key].total+=c.total; totals[b.key].trns+=c.trns;
+      return '<td>'+(c.trns? '<span class="click-num" onclick=\'showPhoneRecs('+attrJson(c.records)+', "'+esc(name)+' — '+b.label+' Transfers")\'>'+c.trns+'</span>' : '0')+' / '+c.total+'</td>';
+    }).join('')+'</tr>';
+  }).join('');
+  html += '<tr class="total-row"><td>TOTAL</td>'+brackets.map(b=>'<td>'+totals[b.key].trns+' / '+totals[b.key].total+'</td>').join('')+'</tr>';
+  document.querySelector('#openerBrTable tbody').innerHTML = html;
+}
+function renderOpenerRates(openerByAgent, brackets){
+  const over2minKeys = ['b2_5','b5_10','b10_15','b15_20','b20_30','b30p'];
+  const rows = Object.entries(openerByAgent).map(([name,row])=>{
+    let calls=0, trns=0;
+    over2minKeys.forEach(k=>{ calls+=row[k].total; trns+=row[k].trns; });
+    return {name, calls, trns, rate: calls? (trns/calls*100):0};
+  }).filter(r=>r.calls>0);
+  rows.sort((a,b)=>a.rate-b.rate);
+  document.querySelector('#openerRateTable tbody').innerHTML = rows.length ? rows.map(r=>{
+    const cls = r.rate<15?'style="color:var(--red)"':(r.rate>=30?'style="color:var(--green)"':'');
+    return '<tr><td>'+esc(r.name)+'</td><td>'+r.calls+'</td><td>'+r.trns+'</td><td '+cls+'>'+r.rate.toFixed(1)+'%</td></tr>';
+  }).join('') : '<tr><td colspan="4" class="empty-note">No opener activity.</td></tr>';
+}
+
+/* ================= RENDER: Long Calls No Follow-up ================= */
+function setLongThreshold(){ renderLongNoFollow(window._agentMapForLong); }
+function computeLongNoFollow(name, b, thresh){
+  const phoneAllCalls = window._phoneAllCalls||{};
+  const qualifying = Object.entries(b.phoneRecordings).flatMap(([p,recs])=>recs.filter(rec=>rec.sec>=thresh).map(rec=>({phone:p, ...rec})));
+  if(!qualifying.length) return {longCalls:0, noFollow:0, records:[]};
+  const records = qualifying.filter(rec=>{
+    const timeline = phoneAllCalls[rec.phone]||[];
+    return !timeline.some(c=>c._ts>rec.ts);
+  });
+  const longCalls = new Set(qualifying.map(q=>q.phone)).size;
+  const noFollow = new Set(records.map(r=>r.phone)).size;
+  return {longCalls, noFollow, records};
+}
+
+function renderLongNoFollow(agentMap){
+  if(!agentMap) return;
+  const thresh = Number(document.getElementById('longThreshold').value);
+  const closers = Object.entries(agentMap).filter(([name])=>!OPENERS.has(name.toLowerCase()) && !RETENTION.has(name.toLowerCase()));
+  const flagged = [];
+  closers.forEach(([name,b])=>{
+    const {longCalls, noFollow, records} = computeLongNoFollow(name, b, thresh);
+    if(noFollow) flagged.push({name, longCalls, noFollow, records});
+  });
+  window._longNoFollowFlagged = flagged;
+  document.querySelector('#longTable tbody').innerHTML = flagged.length ? flagged.sort((a,b)=>b.noFollow-a.noFollow).map(f=>
+    '<tr><td>'+esc(f.name)+roleTag(f.name)+'</td><td>'+f.longCalls+'</td><td class="click-num" onclick=\'showPhoneRecs('+attrJson(f.records)+', "'+esc(f.name)+' — Long Calls, No Follow-up")\'>'+f.noFollow+'</td><td></td></tr>').join('')
+    : '<tr><td colspan="4" class="empty-note">None at this threshold.</td></tr>';
+}
+
+/* ================= RENDER: Agent Scorecard ================= */
+const SC_LONG_THRESH = 1200; // fixed 20-min baseline, independent of the Long Calls card's selector
+function scorecardVerdict(name, b, openerByAgent){
+  const n = name.toLowerCase();
+  if(OPENERS.has(n)){
+    const row = openerByAgent[name];
+    if(!row) return {label:'No activity', cls:'neutral'};
+    const over2minKeys = ['b2_5','b5_10','b10_15','b15_20','b20_30','b30p'];
+    let calls=0, trns=0;
+    over2minKeys.forEach(k=>{ calls+=row[k].total; trns+=row[k].trns; });
+    if(!calls) return {label:'No calls >2min', cls:'neutral'};
+    const rate = trns/calls*100;
+    if(rate<15) return {label:'Struggling to transfer', cls:'red'};
+    if(rate>=30) return {label:'Strong opener', cls:'green'};
+    return {label:'Average transfer rate', cls:'amber'};
+  }
+  const {longCalls, noFollow} = computeLongNoFollow(name, b, SC_LONG_THRESH);
+  if(longCalls>=2){
+    const rate = noFollow/longCalls*100;
+    if(rate<25) return {label:'Efficient — long calls land', cls:'green'};
+    if(rate>60) return {label:'Long calls, low follow-up', cls:'red'};
+    return {label:'Average follow-up rate', cls:'amber'};
+  }
+  const dropPct = b.total? b.drops/b.total*100 : 0;
+  if(dropPct>TH.dropPct*1.5) return {label:'High drop rate', cls:'red'};
+  return {label:'Not enough long calls to score', cls:'neutral'};
+}
+function renderAgentScorecard(agentMap, openerByAgent){
+  const rows = Object.entries(agentMap).sort((a,b)=>b[1].total-a[1].total);
+  const grid = document.getElementById('scorecardGrid');
+  if(!rows.length){ grid.innerHTML = '<div class="empty-note">No agent activity in this range.</div>'; return; }
+  grid.innerHTML = rows.map(([name,b])=>{
+    const dead=b.short, shortMid=b.r2m+b.r2to5, mid=b.r5to10+b.r10to15+b.r15to20, long=b.r20to30+b.gt30;
+    const total = dead+shortMid+mid+long || 1;
+    const seg=(n,color)=> n>0 ? '<span style="flex-basis:'+(n/total*100)+'%;background:'+color+'"></span>' : '';
+    const dropPct = b.total? (b.drops/b.total*100) : 0;
+    const v = scorecardVerdict(name, b, openerByAgent);
+    return '<div class="sc-card">'+
+      '<div class="sc-head"><span class="sc-name">'+esc(name)+roleTag(name)+'</span></div>'+
+      '<div class="sc-stats">'+
+        '<div class="sc-stat"><div class="v">'+b.total+'</div><div class="l">Calls</div></div>'+
+        '<div class="sc-stat"><div class="v">'+fmtDur(b.total?b.sec/b.total:0)+'</div><div class="l">Avg Talk</div></div>'+
+        '<div class="sc-stat"><div class="v">'+dropPct.toFixed(1)+'%</div><div class="l">Drop Rate</div></div>'+
+      '</div>'+
+      '<div class="sc-bar">'+seg(dead,'var(--text-mute)')+seg(shortMid,'var(--accent)')+seg(mid,'var(--amber)')+seg(long,'var(--purple)')+'</div>'+
+      '<span class="sc-badge '+v.cls+'">'+v.label+'</span>'+
+    '</div>';
+  }).join('');
+}
+
+/* ================= MULTI-SELECT FILTER ================= */
+function populateCampFilter(id, campaigns, onchange){
+  const wrap = document.getElementById(id);
+  campaigns = campaigns.sort();
+  wrap.innerHTML = '<button class="ms-btn" onclick="toggleMs(\''+id+'\')">All Campaigns</button>'+
+    '<div class="ms-panel" id="'+id+'-panel">'+
+    '<label><input type="checkbox" checked onchange="onMsAll(\''+id+'\')" data-all>All</label><hr>'+
+    campaigns.map(c=>'<label><input type="checkbox" value="'+esc(c)+'" onchange="onMsItem(\''+id+'\')"> '+esc(c)+'</label>').join('')+
+    '</div>';
+  wrap._onchange = onchange;
+}
+function toggleMs(id){
+  document.querySelectorAll('.ms-panel').forEach(p=>{ if(p.id!==id+'-panel') p.classList.remove('open'); });
+  document.getElementById(id+'-panel').classList.toggle('open');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.ms-wrap')) document.querySelectorAll('.ms-panel').forEach(p=>p.classList.remove('open'));
+});
+function getMsValues(id){
+  const panel = document.getElementById(id+'-panel');
+  if(!panel) return [];
+  const boxes = Array.from(panel.querySelectorAll('input[type=checkbox]:not([data-all])'));
+  const checked = boxes.filter(b=>b.checked).map(b=>b.value);
+  return checked.length===boxes.length ? [] : checked;
+}
+function onMsAll(id){
+  const panel = document.getElementById(id+'-panel');
+  const all = panel.querySelector('[data-all]');
+  panel.querySelectorAll('input[type=checkbox]:not([data-all])').forEach(b=>b.checked=all.checked);
+  updateMsLabel(id);
+  document.getElementById(id)._onchange && document.getElementById(id)._onchange();
+}
+function onMsItem(id){
+  updateMsLabel(id);
+  document.getElementById(id)._onchange && document.getElementById(id)._onchange();
+}
+function updateMsLabel(id){
+  const panel = document.getElementById(id+'-panel');
+  const boxes = Array.from(panel.querySelectorAll('input[type=checkbox]:not([data-all])'));
+  const checked = boxes.filter(b=>b.checked);
+  const btn = document.getElementById(id).querySelector('.ms-btn');
+  btn.textContent = checked.length===0 || checked.length===boxes.length ? 'All Campaigns' : checked.length+' selected';
+}
+
+/* ================= SORTING ================= */
 function sortTable(tableId, colIdx, th){
   const table = document.getElementById(tableId);
   const tbody = table.querySelector('tbody');
@@ -590,6 +1155,7 @@ function sortTable(tableId, colIdx, th){
   if(totalRow) tbody.appendChild(totalRow);
 }
 
+/* ================= EXPORT ================= */
 function exportTable(tableId, filename){
   const table = document.getElementById(tableId);
   const rows = Array.from(table.querySelectorAll('tr'));
@@ -599,12 +1165,21 @@ function exportTable(tableId, filename){
   a.href = URL.createObjectURL(blob); a.download = filename; a.click();
 }
 
+/* ================= MODAL ================= */
 function openModal(title, bodyHtml){
   document.getElementById('modalTitle').textContent = title;
   document.getElementById('modalBody').innerHTML = bodyHtml;
   document.getElementById('modalBg').classList.add('open');
 }
 function closeModal(){ document.getElementById('modalBg').classList.remove('open'); }
+function showPhoneRecs(records, label){
+  const uniquePhones = new Set(records.map(r=>r.phone)).size;
+  const html = records.map(r=>
+    '<div class="m-row"><span class="ph">'+esc(r.phone)+'</span><span class="dim"> '+fmtDur(r.sec)+'</span>'+
+    (r.recording ? '<audio controls src="'+esc(r.recording)+'"></audio><a class="dl" href="'+esc(r.recording)+'" download>⬇ Download recording</a>' : '<div class="dim" style="margin-top:6px">No recording available</div>')+
+    '</div>').join('');
+  openModal(label+' ('+uniquePhones+')', html || '<div class="empty-note">None</div>');
+}
 
 /* ================= COPY SUMMARY ================= */
 function copySummary(){
@@ -632,6 +1207,39 @@ function fallbackCopy(text){
   document.body.removeChild(ta);
 }
 
+/* ================= ROLE EDITOR ================= */
+function loadRoles(){
+  const saved = localStorage.getItem('tax_roles');
+  if(saved){
+    try{
+      const r = JSON.parse(saved);
+      CLOSERS = new Set(r.closer||[]); OPENERS = new Set(r.opener||[]); RETENTION = new Set(r.retention||[]);
+      DEFAULT_ROLES.closer.forEach(n=>{ if(!CLOSERS.has(n)&&!OPENERS.has(n)&&!RETENTION.has(n)) CLOSERS.add(n); });
+      DEFAULT_ROLES.opener.forEach(n=>{ if(!CLOSERS.has(n)&&!OPENERS.has(n)&&!RETENTION.has(n)) OPENERS.add(n); });
+      DEFAULT_ROLES.retention.forEach(n=>{ if(!CLOSERS.has(n)&&!OPENERS.has(n)&&!RETENTION.has(n)) RETENTION.add(n); });
+    }catch(e){}
+  }
+  document.getElementById('roleCloser').value = Array.from(CLOSERS).join('\n');
+  document.getElementById('roleOpener').value = Array.from(OPENERS).join('\n');
+  document.getElementById('roleRetention').value = Array.from(RETENTION).join('\n');
+}
+function saveRoles(){
+  const parseLines = id=>document.getElementById(id).value.split('\n').map(s=>s.trim().toLowerCase()).filter(Boolean);
+  CLOSERS = new Set(parseLines('roleCloser'));
+  OPENERS = new Set(parseLines('roleOpener'));
+  RETENTION = new Set(parseLines('roleRetention'));
+  localStorage.setItem('tax_roles', JSON.stringify({closer:Array.from(CLOSERS), opener:Array.from(OPENERS), retention:Array.from(RETENTION)}));
+  toast('Roles saved');
+  rerunIfLoaded();
+}
+function resetRoles(){
+  CLOSERS = new Set(DEFAULT_ROLES.closer); OPENERS = new Set(DEFAULT_ROLES.opener); RETENTION = new Set(DEFAULT_ROLES.retention);
+  localStorage.removeItem('tax_roles');
+  loadRoles();
+  toast('Roles reset to defaults');
+  rerunIfLoaded();
+}
+
 /* ================= THRESHOLDS ================= */
 function loadThresholds(){
   const saved = localStorage.getItem('tax_thresholds');
@@ -648,6 +1256,7 @@ function saveThresholds(){
 }
 
 /* ================= INIT ================= */
+loadRoles();
 loadThresholds();
 restoreCollapse();
 (function setDefaultDateRange(){

@@ -1,12 +1,15 @@
 # Ytel Daily Monitor — TAX
 
 A standalone call-monitoring dashboard for the TAX company's Ytel dialer data.
-Vanilla JS, no build step — SheetJS 0.18.5 + Chart.js 4.4.0 via CDN.
+Vanilla JS, no build step — SheetJS 0.18.5 + Chart.js 4.4.0 via CDN. Full feature
+parity with the sibling repo's `command-center` dashboard (same section set),
+plus a couple of TAX-specific additions (see below).
 
 **Independent from `Ytel_Daily_Monitor_ADP`** (a different company/repo) — no shared
-code, no shared CRM, no shared branding. This company has **no CRM merge**: it's
-raw Ytel call-detail records only, so there's no Enrolled/Debt/Conversion tracking
-here, same reasoning as that repo's `command-center` dashboard.
+code, no shared CRM, no shared branding, own GitHub repo. This company has **no
+CRM merge**: it's raw Ytel call-detail records only, so there's no Enrolled/Debt/
+Conversion tracking anywhere in this dashboard, same reasoning as that repo's
+`command-center` dashboard.
 
 ## Data source
 
@@ -44,12 +47,14 @@ ever proves unreliable).
 
 ## Sections
 
+Same set as `command-center` in the sibling repo, in nav order:
+
 - **Overview** — Total Calls, Unique Numbers Received (inbound-unique), Contact
-  Rate (outbound, >30s), Unique Calls >2/15/30 Min, Avg Talk Time, Drops, DNC
-  Calls, Dialed After DNC. Tiles are styled like `Ytel_Daily_Monitor_v2`'s KPI
-  grid (light cards, colored top accent bar, label/value/sub) by request — the
-  one deliberately light-themed spot on an otherwise dark page; the rest of the
-  dashboard is unchanged.
+  Rate (outbound, >30s), **Unique Calls >2/15/30 Min** (TAX-specific addition, see
+  below), Avg Talk Time, Drops, DNC Calls, Dialed After DNC. Tiles are styled like
+  `Ytel_Daily_Monitor_v2`'s KPI grid (light cards, colored top accent bar,
+  label/value/sub) by request — the one deliberately light-themed spot on an
+  otherwise dark page; the rest of the dashboard stays dark.
   - The three "Unique Calls >X Min" tiles use `phoneBest` — each distinct
     phone's single longest call in the range, **any direction** (not just
     outbound) — compared against `uniquePhonesAll` (every distinct phone
@@ -57,6 +62,12 @@ ever proves unreliable).
     `>2 Min`/`>15 Min`/`>30 Min`/`>45 Min` tiles (`>45 Min` omitted here,
     not requested). This denominator is intentionally different from the
     Contact Rate tile's, which is outbound-only (`dialedUnique`).
+  - **Direction filter** (TAX-specific addition): All / Inbound / Outbound
+    buttons above the KPI grid (`setKpiDir()`/`computeKpiData()`/
+    `renderKpisForDir()`) re-filter just the Overview tiles by call direction.
+    Nothing else on the page (Issues, hour charts, Agent Performance,
+    Rankings, Scorecard, Campaign Breakdown, etc.) is affected — those always
+    reflect the full, all-direction date range.
 - **Issues Detected** — compliance/ops alerts: dialed-after-DNC (critical), DNC
   call volume, drop rate, dead-call rate, agent short-call rate, excessive redials
   — thresholds editable in Settings
@@ -64,21 +75,43 @@ ever proves unreliable).
 - **Disposition Breakdown** — status counts + %
 - **Agent Performance** — per-agent call counts, talk-time brackets (Short ≤30s,
   <2m, 5–10m, 10–15m, 15–20m, 20–30m, 30m+), Avg/Total Talk, Drops, Redials
-  (3+ outbound calls to the same number). **No role split** — every dialer is
-  treated as one undifferentiated pool (per explicit product decision: "everyone
-  is closer" for this company), so there's no Closer/Opener/Retention tagging
-  or role editor here, unlike the sibling repo's dashboards.
-- **Settings** — alert thresholds only (no role editor, see above)
+  (3+ outbound calls to the same number)
+- **Agent Rankings** — By Volume / By Contact Rate / By Drop Rate
+- **Agent Scorecard** — one card per agent: call count, avg talk, drop rate,
+  talk-time bracket bar, color-coded verdict badge (opener verdict uses
+  transfer rate; everyone else uses the Long Calls No Follow-up rate at a
+  fixed 20-min threshold)
+- **Campaign / Queue Breakdown** — Contact% per campaign
+- **Top 5 Dialed Numbers**
+- **VDCL / VDAD Analysis** — dispositions dialed by the predictive dialer itself
+- **Missed Callbacks** — inbound `TIMEOT` with no follow-up
+- **DPC — Dropped, Never Called Back** — per-event drop-with-no-follow-up flagging
+- **Transfers** — Incomplete Transfers (CLtrns with no inbound follow-up) +
+  Correct Transfers Received by Agent
+- **Openers — Transfer Breakdown** — by talk-time bracket, plus a Lowest
+  Transfer Rate (>2min) ranking. Empty/hidden until agents are tagged as
+  Openers in Settings (see below)
+- **Long Calls, No Follow-up** — closer-scoped, selectable 20/25/30-min
+  threshold, CSV export
+- **Settings** — Agent role editor (Closers/Openers/Retention) + alert
+  thresholds
+
+### Agent roles
+
+Unlike the sibling repo's dashboards, **no agent names are pre-seeded** —
+`DEFAULT_ROLES` ships empty (`{closer:[], opener:[], retention:[]}`) since this
+company's roster isn't known in advance. Until you fill in Settings, every agent
+is untagged (no Closer/Opener/Retention pill) and treated the same everywhere —
+Agent Scorecard's non-opener branch and the Long Calls No Follow-up logic apply
+to everyone, and the Openers Transfer Breakdown card just stays empty. Add names
+via the Settings role editor (persists to `localStorage`, same pattern as the
+sibling repo) whenever you're ready to split them out.
 
 ## What's deliberately NOT here
 
 Same reasoning as `command-center` in the sibling repo: no CRM data means no
 ground truth for "did this lead close," so Enrolled/Debt/Conv%, CA-escrow
 pending-deal logic, and Ytel Discrepancy are all dropped rather than approximated.
-Also trimmed for this first version (can be added later if wanted): Agent
-Rankings, Agent Scorecard, Campaign/Queue Breakdown, Top Numbers, VDCL/VDAD
-Analysis, Missed Callbacks, DPC Drops, Incomplete/Received Transfers, Openers
-Transfer Breakdown, Long Calls No Follow-up.
 
 ## Deploy
 
