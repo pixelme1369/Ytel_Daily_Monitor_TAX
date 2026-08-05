@@ -45,7 +45,10 @@ ever proves unreliable).
 ## Sections
 
 - **Overview** — Total Calls, Unique Numbers Received (inbound-unique), Contact
-  Rate (outbound, >30s), Avg Talk Time, Drops, DNC Calls, Dialed After DNC
+  Rate (outbound, >30s), Avg Talk Time, Drops, DNC Calls, Dialed After DNC. Tiles
+  are styled like `Ytel_Daily_Monitor_v2`'s KPI grid (light cards, colored top
+  accent bar, label/value/sub) by request — the one deliberately light-themed
+  spot on an otherwise dark page; the rest of the dashboard is unchanged.
 - **Issues Detected** — compliance/ops alerts: dialed-after-DNC (critical), DNC
   call volume, drop rate, dead-call rate, agent short-call rate, excessive redials
   — thresholds editable in Settings
