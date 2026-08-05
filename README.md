@@ -45,10 +45,18 @@ ever proves unreliable).
 ## Sections
 
 - **Overview** — Total Calls, Unique Numbers Received (inbound-unique), Contact
-  Rate (outbound, >30s), Avg Talk Time, Drops, DNC Calls, Dialed After DNC. Tiles
-  are styled like `Ytel_Daily_Monitor_v2`'s KPI grid (light cards, colored top
-  accent bar, label/value/sub) by request — the one deliberately light-themed
-  spot on an otherwise dark page; the rest of the dashboard is unchanged.
+  Rate (outbound, >30s), Unique Calls >2/15/30 Min, Avg Talk Time, Drops, DNC
+  Calls, Dialed After DNC. Tiles are styled like `Ytel_Daily_Monitor_v2`'s KPI
+  grid (light cards, colored top accent bar, label/value/sub) by request — the
+  one deliberately light-themed spot on an otherwise dark page; the rest of the
+  dashboard is unchanged.
+  - The three "Unique Calls >X Min" tiles use `phoneBest` — each distinct
+    phone's single longest call in the range, **any direction** (not just
+    outbound) — compared against `uniquePhonesAll` (every distinct phone
+    touched in range, any direction). Same logic v2 uses for its own
+    `>2 Min`/`>15 Min`/`>30 Min`/`>45 Min` tiles (`>45 Min` omitted here,
+    not requested). This denominator is intentionally different from the
+    Contact Rate tile's, which is outbound-only (`dialedUnique`).
 - **Issues Detected** — compliance/ops alerts: dialed-after-DNC (critical), DNC
   call volume, drop rate, dead-call rate, agent short-call rate, excessive redials
   — thresholds editable in Settings

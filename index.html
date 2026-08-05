@@ -69,6 +69,7 @@ a{color:var(--accent)}
 .kpi.amber{--c:#F59E0B}
 .kpi.green{--c:#10B981}
 .kpi.blue{--c:#6366F1}
+.kpi.purple{--c:#7C3AED}
 .kpi.red .kpi-val{color:#EF4444}
 .kpi.amber .kpi-val{color:#F59E0B}
 .kpi.green .kpi-val{color:#065F46}
@@ -398,6 +399,17 @@ function buildDashboard(){
   const deadRows = calls.filter(r=>r._sec<=30);
   const avgTalk = totalCalls? calls.reduce((a,r)=>a+r._sec,0)/totalCalls : 0;
 
+  // ---- unique-call duration brackets (any direction) ----
+  // uniquePhonesAll = every distinct phone touched in range (inbound+outbound),
+  // phoneBest = that phone's longest single call — mirrors Ytel_Daily_Monitor_v2's
+  // "Unique Calls >X Min" KPI tiles.
+  const uniquePhonesAll = new Set(calls.map(r=>r._phone).filter(Boolean));
+  const phoneBest = {};
+  calls.forEach(r=>{ if(r._phone && r._sec>(phoneBest[r._phone]||0)) phoneBest[r._phone]=r._sec; });
+  const gt2mUnique = Object.values(phoneBest).filter(s=>s>120).length;
+  const gt15mUnique = Object.values(phoneBest).filter(s=>s>900).length;
+  const gt30mUnique = Object.values(phoneBest).filter(s=>s>1800).length;
+
   // ---- dialed after DNC ----
   const firstDncTs = {};
   dncRows.forEach(r=>{ if(!firstDncTs[r._phone] || r._ts<firstDncTs[r._phone]) firstDncTs[r._phone]=r._ts; });
@@ -470,7 +482,7 @@ function buildDashboard(){
   if(!issues.length) issues.push({sev:'ok', text:'No issues detected for this range.'});
 
   // ================= RENDER =================
-  renderKpis({totalCalls, dialedUnique, contactedUnique, receivedUnique, avgTalk, dropRows, dncRows, dialedAfterDncPhones});
+  renderKpis({totalCalls, dialedUnique, contactedUnique, receivedUnique, avgTalk, dropRows, dncRows, dialedAfterDncPhones, uniquePhonesAll, gt2mUnique, gt15mUnique, gt30mUnique});
   renderIssues(issues);
   renderHourCharts(hourCounts, dncHourCounts, dropHourCounts);
   renderDispo(dispoCounts, dispoNames, totalCalls);
@@ -491,6 +503,9 @@ function renderKpis(d){
     {l:'Total Calls', v:d.totalCalls.toLocaleString(), sub:'all dispositions', cls:'blue'},
     {l:'Unique Numbers Received', v:d.receivedUnique.size.toLocaleString(), sub:'distinct inbound phone numbers', cls:'blue'},
     {l:'Contact Rate (outbound)', v:contactRate.toFixed(1)+'%', sub:d.contactedUnique.size.toLocaleString()+' of '+d.dialedUnique.size.toLocaleString()+' dialed reached >30s', cls:contactRate<30?'amber':'green'},
+    {l:'Unique Calls >2 Min', v:d.gt2mUnique.toLocaleString(), sub:pct(d.gt2mUnique,d.uniquePhonesAll.size)+' of unique calls', cls:'blue'},
+    {l:'Unique Calls >15 Min', v:d.gt15mUnique.toLocaleString(), sub:pct(d.gt15mUnique,d.uniquePhonesAll.size)+' of unique calls', cls:'green'},
+    {l:'Unique Calls >30 Min', v:d.gt30mUnique.toLocaleString(), sub:pct(d.gt30mUnique,d.uniquePhonesAll.size)+' of unique calls', cls:'purple'},
     {l:'Avg Talk Time', v:fmtDur(d.avgTalk), sub:'per call', cls:'blue'},
     {l:'Drops', v:d.dropRows.length.toLocaleString(), sub:pct(d.dropRows.length,d.totalCalls)+' drop rate', cls:'amber'},
     {l:'DNC Calls', v:d.dncRows.length.toLocaleString(), sub:'flagged Do Not Call', cls:'red'},
