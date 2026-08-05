@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TAX Daily Monitor</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0B0F1A; --panel:#121729; --panel2:#161D33; --border:#232C48;
+  --text:#E7EAF2; --text-dim:#96A0BE; --text-mute:#616D91;
+  --accent:#F59E0B; --green:#34D399; --red:#F87171; --amber:#FBBF24;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#26314F;border-radius:6px}
+a{color:var(--accent)}
+
+/* ---------- top bar ---------- */
+#topbar{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,#0E1424,#0B0F1A);border-bottom:1px solid var(--border);padding:12px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-right:8px}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.brand h1{font-size:16px;font-weight:700;letter-spacing:.02em}
+.brand small{display:block;font-size:10px;color:var(--text-mute);letter-spacing:.08em;text-transform:uppercase}
+.tb-field{display:flex;flex-direction:column;gap:3px}
+.tb-field label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-mute)}
+.tb-field input[type=date]{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-size:12px;color-scheme:dark}
+.btn{background:var(--accent);color:#241600;border:none;border-radius:6px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.02em}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text-dim)}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
+#fileCount{font-size:11px;color:var(--text-mute)}
+#hint{width:100%;font-size:11px;color:var(--amber);display:none}
+#dropzone{border:1.5px dashed #2C3F63;border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-dim);cursor:pointer;transition:.15s}
+#dropzone:hover,#dropzone.drag{border-color:var(--accent);color:var(--accent);background:rgba(245,158,11,.06)}
+#fileInput{display:none}
+
+/* ---------- layout ---------- */
+#main{display:flex;max-width:1500px;margin:0 auto}
+#nav{width:190px;flex:0 0 190px;padding:18px 10px;position:sticky;top:57px;align-self:flex-start;height:calc(100vh - 57px);overflow-y:auto}
+#nav a{display:block;font-size:12px;color:var(--text-dim);text-decoration:none;padding:7px 10px;border-radius:6px;margin-bottom:2px}
+#nav a:hover{background:var(--panel2);color:var(--text)}
+#content{flex:1;padding:20px 24px 60px;min-width:0}
+
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;margin-bottom:18px;overflow:hidden}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;border-bottom:1px solid var(--border)}
+.card-head h2{font-size:13px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--text)}
+.card-head .meta{font-size:11px;color:var(--text-mute);font-weight:400;text-transform:none;margin-left:8px}
+.card-body{padding:16px}
+.card.collapsed .card-body{display:none}
+.chev{transition:.15s;color:var(--text-mute);font-size:11px}
+.card.collapsed .chev{transform:rotate(-90deg)}
+.card-tools{display:flex;gap:8px;align-items:center}
+
+/* ---------- kpi grid ---------- */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.kpi{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.kpi .v{font-size:24px;font-weight:800;line-height:1.1}
+.kpi .l{font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.05em;margin-top:6px}
+.kpi.danger .v{color:var(--red)}
+.kpi.warn .v{color:var(--amber)}
+.kpi.ok .v{color:var(--green)}
+.kpi.click{cursor:pointer}
+.kpi.click:hover{border-color:var(--accent)}
+
+/* ---------- issues ---------- */
+.issue-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:8px;background:var(--panel2);border-left:3px solid var(--text-mute)}
+.issue-row.crit{border-left-color:var(--red)}
+.issue-row.warn{border-left-color:var(--amber)}
+.issue-row.ok{border-left-color:var(--green)}
+.issue-row .badge{font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
+.issue-row.crit .badge{background:rgba(248,113,113,.15);color:var(--red)}
+.issue-row.warn .badge{background:rgba(251,191,36,.15);color:var(--amber)}
+.issue-row.ok .badge{background:rgba(52,211,153,.15);color:var(--green)}
+.issue-row .txt{flex:1;font-size:12.5px}
+.issue-row .txt b{color:var(--text)}
+.issue-row button{background:none;border:1px solid var(--border);color:var(--text-dim);border-radius:5px;font-size:11px;padding:4px 9px;cursor:pointer}
+.issue-row button:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 10px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.04em;font-size:10.5px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--accent)}
+th.sort-asc:after{content:' \25B2';color:var(--accent)}
+th.sort-desc:after{content:' \25BC';color:var(--accent)}
+td{padding:7px 10px;border-bottom:1px solid #182142;white-space:nowrap}
+tr.total-row td{font-weight:700;background:var(--panel2);border-top:1px solid var(--border)}
+.tbl-wrap{overflow-x:auto}
+.click-num{color:var(--accent);cursor:pointer;text-decoration:underline dotted}
+.click-num:hover{color:#FCD34D}
+.mono{font-family:ui-monospace,Consolas,monospace}
+.dim{color:var(--text-mute)}
+
+/* charts */
+.chart-box{position:relative;height:260px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}#nav{display:none}}
+
+/* settings */
+.th-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:10px}
+.th-item label{display:block;font-size:11px;color:var(--text-mute);margin-bottom:4px}
+.th-item input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-size:12px}
+
+/* modal */
+#modalBg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center}
+#modalBg.open{display:flex}
+#modalBox{background:var(--panel);border:1px solid var(--border);border-radius:12px;max-width:600px;width:90vw;max-height:80vh;overflow-y:auto}
+#modalBox .m-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--panel)}
+#modalBox .m-head h3{font-size:14px}
+#modalBox .m-head span{cursor:pointer;color:var(--text-mute);font-size:18px}
+#modalBox .m-body{padding:14px 18px}
+.m-row{padding:10px;border-bottom:1px solid #182142;font-size:12px}
+.m-row .ph{font-family:ui-monospace,monospace;font-weight:700}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:12.5px;z-index:200;display:none;max-width:320px}
+.empty-note{font-size:12px;color:var(--text-mute);padding:10px 0}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand">
+    <div class="dot"></div>
+    <div>
+      <h1>TAX Daily Monitor</h1>
+      <small>Ytel call data only &mdash; no CRM</small>
+    </div>
+  </div>
+  <div id="dropzone" onclick="document.getElementById('fileInput').click()"
+       ondragover="event.preventDefault();this.classList.add('drag')"
+       ondragleave="this.classList.remove('drag')"
+       ondrop="event.preventDefault();this.classList.remove('drag');handleFiles(event.dataTransfer.files)">
+    📁 Upload Ytel export(s) (.csv/.xlsx) — click or drag
+  </div>
+  <input type="file" id="fileInput" multiple accept=".csv,.xlsx,.xls" onchange="handleFiles(this.files)">
+  <div class="tb-field"><label>From</label><input type="date" id="fromDate"></div>
+  <div class="tb-field"><label>To</label><input type="date" id="toDate"></div>
+  <button class="btn" id="runBtn" onclick="runAnalysis()">Run Analysis</button>
+  <button class="btn ghost" onclick="copySummary()">Copy Summary</button>
+  <button class="btn ghost" onclick="clearAll()">Clear</button>
+  <span id="fileCount"></span>
+  <div id="hint"></div>
+</div>
+
+<div id="main">
+  <nav id="nav">
+    <a href="#sec-kpi">Overview</a>
+    <a href="#sec-issues">Issues Detected</a>
+    <a href="#sec-hour">Call Volume</a>
+    <a href="#sec-dispo">Dispositions</a>
+    <a href="#sec-agent">Agent Performance</a>
+    <a href="#sec-settings">Settings</a>
+  </nav>
+
+  <div id="content">
+    <div id="emptyState" class="empty-note" style="font-size:14px;padding:60px 0;text-align:center">Upload your Ytel export(s), pick a date range, and click Run Analysis.</div>
+    <div id="report" style="display:none">
+
+      <div class="card" id="sec-kpi"><div class="card-head" onclick="toggleCard(this)"><h2>Overview</h2><span class="chev">▼</span></div>
+        <div class="card-body"><div class="kpi-grid" id="kpiGrid"></div></div>
+      </div>
+
+      <div class="card" id="sec-issues"><div class="card-head" onclick="toggleCard(this)"><h2>Issues Detected</h2><span class="chev">▼</span></div>
+        <div class="card-body" id="issuesBody"></div>
+      </div>
+
+      <div class="card" id="sec-hour"><div class="card-head" onclick="toggleCard(this)"><h2>Call Volume &amp; Compliance by Hour</h2><span class="chev">▼</span></div>
+        <div class="card-body">
+          <div class="two-col">
+            <div><div style="font-size:11px;color:var(--text-mute);margin-bottom:6px">CALLS BY HOUR</div><div class="chart-box"><canvas id="hourChart"></canvas></div></div>
+            <div><div style="font-size:11px;color:var(--text-mute);margin-bottom:6px">DNC CALLS BY HOUR</div><div class="chart-box"><canvas id="dncHourChart"></canvas></div></div>
+          </div>
+          <div class="two-col" style="margin-top:18px">
+            <div><div style="font-size:11px;color:var(--text-mute);margin-bottom:6px">DROPS BY HOUR</div><div class="chart-box"><canvas id="dropHourChart"></canvas></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="sec-dispo"><div class="card-head" onclick="toggleCard(this)"><h2>Disposition Breakdown</h2><span class="chev">▼</span></div>
+        <div class="card-body"><div class="tbl-wrap"><table id="dispoTable"><thead><tr><th>Status</th><th>Calls</th><th>%</th></tr></thead><tbody></tbody></table></div></div>
+      </div>
+
+      <div class="card" id="sec-agent"><div class="card-head" onclick="toggleCard(this)"><h2>Agent Performance</h2><span class="chev">▼</span><div class="card-tools"><button class="btn ghost" onclick="event.stopPropagation();exportTable('agentTable','agent_performance.csv')">⬇ CSV</button></div></div>
+        <div class="card-body"><div class="tbl-wrap"><table id="agentTable"><thead></thead><tbody></tbody></table></div></div>
+      </div>
+
+      <div class="card collapsed" id="sec-settings"><div class="card-head" onclick="toggleCard(this)"><h2>Settings</h2><span class="chev">▼</span></div>
+        <div class="card-body">
+          <h3 style="font-size:12px;color:var(--text-dim);margin-bottom:4px">ALERT THRESHOLDS</h3>
+          <div class="th-grid" id="thGrid"></div>
+          <div style="margin-top:10px"><button class="btn" onclick="saveThresholds()">Save Thresholds</button></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div id="modalBox">
+    <div class="m-head"><h3 id="modalTitle"></h3><span onclick="closeModal()">&times;</span></div>
+    <div class="m-body" id="modalBody"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ================= CONFIG =================
+   TAX Daily Monitor — independent from Ytel_Daily_Monitor_v2 / command-center.
+   Raw Ytel-only export, no CRM merge. Everyone dialing is treated as one
+   undifferentiated agent pool (no Closer/Opener/Retention split) per explicit
+   product decision — this dashboard does not track agent roles. */
+const DEFAULT_THRESHOLDS = {
+  dncCalls: 20, dropPct: 5, deadPct: 30, agentShortPct: 55, agentMinCalls: 30, redials: 15
+};
+let TH = Object.assign({}, DEFAULT_THRESHOLDS);
+const TH_LABELS = {
+  dncCalls:'DNC Calls (warn above)', dropPct:'Drop % (warn above)', deadPct:'Dead Call % ≤30s (warn above)',
+  agentShortPct:'Agent Short-Call % (flag above)', agentMinCalls:'Agent Min Calls (to qualify for flag)', redials:'Redials to Same Number (flag above)'
+};
+
+/* ================= UTILS ================= */
+function pad2(n){return String(n).padStart(2,'0');}
+function pct(n,d){return d? (n/d*100).toFixed(1)+'%' : '0.0%';}
+function fmtDur(sec){
+  sec = Math.round(sec||0);
+  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  return h>0 ? h+':'+pad2(m)+':'+pad2(s) : m+':'+pad2(s);
+}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function attrJson(v){return JSON.stringify(v).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/</g,'&lt;');}
+function parseTs(v){
+  if(v instanceof Date) return v.getTime();
+  if(typeof v==='number') return v;
+  if(typeof v==='string'){ const d=new Date(v); if(!isNaN(d)) return d.getTime(); }
+  return NaN;
+}
+function getDateStr(v){
+  const d = v instanceof Date ? v : new Date(v);
+  if(isNaN(d)) return null;
+  return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+}
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.style.display='block';
+  clearTimeout(window._toastT); window._toastT=setTimeout(()=>t.style.display='none',3200);
+}
+function toggleCard(head){ head.parentElement.classList.toggle('collapsed'); const id=head.parentElement.id; localStorage.setItem('tax_collapse:'+id, head.parentElement.classList.contains('collapsed')?'1':'0'); }
+function restoreCollapse(){ document.querySelectorAll('.card[id]').forEach(c=>{ const v=localStorage.getItem('tax_collapse:'+c.id); if(v==='1') c.classList.add('collapsed'); if(v==='0') c.classList.remove('collapsed'); }); }
+
+/* ================= NORMALIZATION =================
+   Same column names as the raw Ytel export: call_date, direction,
+   phone_number_dialed, status, status_name, user, full_name, campaign_id,
+   source_id, length_in_sec, recording_location. (The export also carries a
+   lot of lead/demographic columns — list_name, vendor_lead_code, address
+   fields, etc. — that this dashboard doesn't currently read; harmless if
+   present.) */
+function normalize(r){
+  r._ts = parseTs(r.call_date);
+  const dt = new Date(r._ts);
+  r._hour = isNaN(r._ts) ? String(r.call_date||'').slice(11,13) : pad2(dt.getHours());
+  r._dateStr = getDateStr(r.call_date);
+  r._name = (r.full_name||'Unknown').toString().trim() || 'Unknown';
+  r._user = (r.user||'').toString().trim();
+  r._campaign = (r.campaign_id||'Unknown').toString().trim() || 'Unknown';
+  r._source = (r.source_id||'').toString().trim();
+  r._status = (r.status||'').toString().trim();
+  r._statusName = (r.status_name||'').toString().trim();
+  r._direction = (r.direction||'').toString().trim().toLowerCase();
+  r._sec = Number(r.length_in_sec)||0;
+  r._phone = (r.phone_number_dialed || r.phone_number || '').toString().trim();
+  r._recording = (r.recording_location||'').toString().trim();
+}
+
+/* ================= FILE I/O =================
+   Manual upload only for now (no BigQuery wiring yet) — drag/drop or click
+   the dropzone, .csv or .xlsx, multiple files merge together. */
+let mergedRaw = [];
+
+function readFile(file, cb){
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(ext==='csv'){
+    const reader = new FileReader();
+    reader.onload = e=>cb(parseCSV(e.target.result));
+    reader.readAsText(file);
+  } else {
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const wb = XLSX.read(e.target.result,{type:'array',cellDates:true});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      cb(XLSX.utils.sheet_to_json(ws,{defval:''}));
+    };
+    reader.readAsArrayBuffer(file);
+  }
+}
+function parseCSV(text){
+  const lines = text.split('\n'); if(!lines.length) return [];
+  const hdrs = lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
+  return lines.slice(1).filter(l=>l.trim()).map(l=>{
+    const vals = l.match(/(".*?"|[^,]+|(?<=,)(?=,)|(?<=,)$|^(?=,))/g)||[];
+    const obj = {};
+    hdrs.forEach((h,i)=>{ obj[h]=(vals[i]||'').replace(/^"|"$/g,'').trim(); });
+    return obj;
+  });
+}
+function handleFiles(fileList){
+  const files = Array.from(fileList||[]);
+  if(!files.length) return;
+  let pending = files.length;
+  document.getElementById('fileCount').textContent = 'Reading '+files.length+' file(s)…';
+  files.forEach(file=>{
+    readFile(file, data=>{
+      data.forEach(normalize);
+      mergedRaw = mergedRaw.concat(data);
+      pending--;
+      if(pending===0){
+        document.getElementById('fileCount').textContent = mergedRaw.length.toLocaleString()+' rows loaded';
+        toast(mergedRaw.length.toLocaleString()+' rows loaded from '+files.length+' file(s)');
+        autoSetDate(mergedRaw);
+      }
+    });
+  });
+}
+function autoSetDate(data){
+  const dates = new Set(data.map(r=>r._dateStr).filter(Boolean));
+  const sorted = [...dates].sort();
+  if(sorted.length){
+    document.getElementById('fromDate').value = sorted[0];
+    document.getElementById('toDate').value = sorted[sorted.length-1];
+  }
+}
+
+function clearAll(){
+  mergedRaw=[]; calls=[];
+  document.getElementById('fileInput').value='';
+  document.getElementById('fileCount').textContent='';
+  document.getElementById('fromDate').value=''; document.getElementById('toDate').value='';
+  document.getElementById('report').style.display='none';
+  document.getElementById('emptyState').style.display='block';
+  document.getElementById('hint').style.display='none';
+  ['hourChart','dncHourChart','dropHourChart'].forEach(id=>{ if(window['_'+id]){ window['_'+id].destroy(); window['_'+id]=null; } });
+}
+
+/* ================= ANALYSIS ================= */
+let calls = [];
+let badDateRows = 0;
+
+function runAnalysis(){
+  if(!mergedRaw.length){ toast('Upload a Ytel export first'); return; }
+  const fromStr = document.getElementById('fromDate').value;
+  const toStr = document.getElementById('toDate').value;
+  if(!fromStr || !toStr){ toast('Select a date range'); return; }
+  if(fromStr>toStr){ toast('From date must be on or before To date'); return; }
+
+  badDateRows = mergedRaw.filter(r=>!r._dateStr).length;
+  calls = mergedRaw.filter(r=>r._dateStr>=fromStr && r._dateStr<=toStr);
+
+  const hint = document.getElementById('hint');
+  if(badDateRows>0){ hint.style.display='block'; hint.textContent = badDateRows+' row(s) had an unparseable call_date and were excluded.'; }
+  else hint.style.display='none';
+
+  if(!calls.length){ toast('No calls found in that date range'); }
+
+  document.getElementById('fileCount').textContent = calls.length.toLocaleString()+' calls in range ('+mergedRaw.length.toLocaleString()+' loaded)';
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('report').style.display='block';
+
+  buildDashboard();
+}
+
+function rerunIfLoaded(){
+  if(mergedRaw.length && document.getElementById('report').style.display!=='none'){
+    runAnalysis();
+  }
+}
+
+function buildDashboard(){
+  // ---- basic sets ----
+  const outboundCalls = calls.filter(r=>r._direction==='outbound');
+  const dialedUnique = new Set(outboundCalls.map(r=>r._phone).filter(Boolean));
+  const contactedUnique = new Set(outboundCalls.filter(r=>r._sec>30).map(r=>r._phone).filter(Boolean));
+  const inboundCalls = calls.filter(r=>r._direction==='inbound');
+  const receivedUnique = new Set(inboundCalls.map(r=>r._phone).filter(Boolean));
+  const totalCalls = calls.length;
+  const dropRows = calls.filter(r=>r._status==='DROP');
+  const dncRows = calls.filter(r=>r._status==='DNC');
+  const deadRows = calls.filter(r=>r._sec<=30);
+  const avgTalk = totalCalls? calls.reduce((a,r)=>a+r._sec,0)/totalCalls : 0;
+
+  // ---- dialed after DNC ----
+  const firstDncTs = {};
+  dncRows.forEach(r=>{ if(!firstDncTs[r._phone] || r._ts<firstDncTs[r._phone]) firstDncTs[r._phone]=r._ts; });
+  const dialedAfterDncPhones = new Set();
+  const afterDncDetail = {};
+  calls.forEach(r=>{
+    const fdt = firstDncTs[r._phone];
+    if(fdt!==undefined && r._direction==='outbound' && r._ts>fdt){
+      dialedAfterDncPhones.add(r._phone);
+      if(!afterDncDetail[r._phone]) afterDncDetail[r._phone]={count:0, agents:new Set()};
+      afterDncDetail[r._phone].count++;
+      afterDncDetail[r._phone].agents.add(r._name);
+    }
+  });
+  window._afterDncDetail = afterDncDetail;
+
+  // ---- dispo breakdown ----
+  const dispoCounts = {};
+  const dispoNames = {};
+  calls.forEach(r=>{ const k=r._status||'(blank)'; dispoCounts[k]=(dispoCounts[k]||0)+1; if(r._statusName && !dispoNames[k]) dispoNames[k]=r._statusName; });
+
+  // ---- hour buckets ----
+  const hourCounts = {}, dncHourCounts = {}, dropHourCounts = {};
+  for(let h=0;h<24;h++){ const k=pad2(h); hourCounts[k]=0; dncHourCounts[k]=0; dropHourCounts[k]=0; }
+  calls.forEach(r=>{ if(hourCounts[r._hour]!==undefined) hourCounts[r._hour]++; });
+  dncRows.forEach(r=>{ if(dncHourCounts[r._hour]!==undefined) dncHourCounts[r._hour]++; });
+  dropRows.forEach(r=>{ if(dropHourCounts[r._hour]!==undefined) dropHourCounts[r._hour]++; });
+
+  // ---- agent map (no role split — everyone is one pool) ----
+  const agentEligible = calls.filter(r=>r._name!=='Unknown' && r._user!=='VDCL' && r._user!=='VDAD');
+  const agentMap = {};
+  function agentBucket(name){ if(!agentMap[name]) agentMap[name]={ total:0, inbound:0, outbound:0, sec:0, short:0, r2m:0, r5to10:0, r10to15:0, r15to20:0, r20to30:0, gt30:0, drops:0, phoneOutCounts:{} }; return agentMap[name]; }
+  agentEligible.forEach(r=>{
+    const b = agentBucket(r._name);
+    b.total++;
+    if(r._direction==='inbound') b.inbound++; else if(r._direction==='outbound') b.outbound++;
+    b.sec += r._sec;
+    if(r._sec<=30) b.short++;
+    else if(r._sec<120) b.r2m++;
+    else if(r._sec<600) b.r5to10++;
+    else if(r._sec<900) b.r10to15++;
+    else if(r._sec<1200) b.r15to20++;
+    else if(r._sec<1800) b.r20to30++;
+    else b.gt30++;
+    if(r._status==='DROP') b.drops++;
+    if(r._direction==='outbound' && r._phone){ b.phoneOutCounts[r._phone]=(b.phoneOutCounts[r._phone]||0)+1; }
+  });
+
+  // redials: phones an agent called 3+ times outbound in the range
+  const redialFlags = {};
+  Object.keys(agentMap).forEach(name=>{
+    const b = agentMap[name];
+    const redialed = Object.entries(b.phoneOutCounts).filter(([p,c])=>c>=3);
+    if(redialed.length) redialFlags[name]=redialed.length;
+  });
+
+  // ---- issues ----
+  const dropPct = totalCalls? dropRows.length/totalCalls*100 : 0;
+  const deadPct = totalCalls? deadRows.length/totalCalls*100 : 0;
+  const issues = [];
+  if(dialedAfterDncPhones.size>0) issues.push({sev:'crit', text:'<b>'+dialedAfterDncPhones.size+'</b> phone(s) dialed after being marked DNC — compliance violation.', action:'showAfterDnc'});
+  if(dncRows.length>TH.dncCalls) issues.push({sev:'warn', text:'<b>'+dncRows.length+'</b> DNC calls this period (threshold '+TH.dncCalls+').'});
+  if(dropPct>TH.dropPct) issues.push({sev:'warn', text:'Drop rate at <b>'+dropPct.toFixed(1)+'%</b> (threshold '+TH.dropPct+'%).'});
+  if(deadPct>TH.deadPct) issues.push({sev:'warn', text:'<b>'+deadPct.toFixed(1)+'%</b> of calls are ≤30s (threshold '+TH.deadPct+'%).'});
+  const shortAgents = Object.entries(agentMap).filter(([n,b])=>b.total>=TH.agentMinCalls && (b.short/b.total*100)>TH.agentShortPct);
+  if(shortAgents.length) issues.push({sev:'warn', text:'<b>'+shortAgents.length+'</b> agent(s) with short-call rate above '+TH.agentShortPct+'% (min '+TH.agentMinCalls+' calls): '+shortAgents.map(([n])=>n).join(', ')+'.'});
+  const redialAgents = Object.entries(redialFlags).filter(([n,c])=>c>=1);
+  const heavyRedialAgents = redialAgents.filter(([n,c])=>c>=Math.ceil(TH.redials/3));
+  if(heavyRedialAgents.length) issues.push({sev:'warn', text:'<b>'+heavyRedialAgents.length+'</b> agent(s) with excessive redials to the same number(s).'});
+  if(!issues.length) issues.push({sev:'ok', text:'No issues detected for this range.'});
+
+  // ================= RENDER =================
+  renderKpis({totalCalls, dialedUnique, contactedUnique, receivedUnique, avgTalk, dropRows, dncRows, dialedAfterDncPhones});
+  renderIssues(issues);
+  renderHourCharts(hourCounts, dncHourCounts, dropHourCounts);
+  renderDispo(dispoCounts, dispoNames, totalCalls);
+  renderAgentTable(agentMap, redialFlags);
+
+  window._summary = {totalCalls, contactRate: pct(contactedUnique.size, dialedUnique.size), drops:dropRows.length, dnc:dncRows.length, afterDnc:dialedAfterDncPhones.size, issues};
+}
+
+/* ================= RENDER: KPI ================= */
+function renderKpis(d){
+  const g = document.getElementById('kpiGrid');
+  const contactRate = d.dialedUnique.size? (d.contactedUnique.size/d.dialedUnique.size*100) : 0;
+  const tiles = [
+    {v:d.totalCalls.toLocaleString(), l:'Total Calls'},
+    {v:d.receivedUnique.size.toLocaleString(), l:'Unique Numbers Received'},
+    {v:contactRate.toFixed(1)+'%', l:'Contact Rate (outbound)', cls: contactRate<30?'warn':'ok'},
+    {v:fmtDur(d.avgTalk), l:'Avg Talk Time'},
+    {v:d.dropRows.length.toLocaleString(), l:'Drops'},
+    {v:d.dncRows.length.toLocaleString(), l:'DNC Calls'},
+    {v:d.dialedAfterDncPhones.size.toLocaleString(), l:'Dialed After DNC', cls: d.dialedAfterDncPhones.size>0?'danger click':'ok', click:d.dialedAfterDncPhones.size>0}
+  ];
+  g.innerHTML = tiles.map(t=>'<div class="kpi '+(t.cls||'')+'"'+(t.click?' onclick="showAfterDnc()"':'')+'><div class="v">'+t.v+'</div><div class="l">'+t.l+'</div></div>').join('');
+}
+
+function showAfterDnc(){
+  const detail = window._afterDncDetail||{};
+  const recs = Object.entries(detail).map(([phone,d])=>({phone, extra:d.count+' call(s) by '+Array.from(d.agents).join(', ')}));
+  openModal('Dialed After DNC ('+recs.length+')', recs.map(r=>'<div class="m-row"><span class="ph">'+esc(r.phone)+'</span><div class="dim" style="margin-top:4px">'+esc(r.extra)+'</div></div>').join('') || '<div class="empty-note">None</div>');
+}
+
+/* ================= RENDER: Issues ================= */
+function renderIssues(issues){
+  const b = document.getElementById('issuesBody');
+  b.innerHTML = issues.map(i=>'<div class="issue-row '+i.sev+'"><span class="badge">'+i.sev+'</span><span class="txt">'+i.text+'</span>'+(i.action==='showAfterDnc'?'<button onclick="showAfterDnc()">View Numbers</button>':'')+'</div>').join('');
+}
+
+/* ================= RENDER: Charts ================= */
+function renderHourCharts(hourCounts, dncHourCounts, dropHourCounts){
+  const hours = Array.from({length:24}, (_,h)=>pad2(h));
+  const labels = hours.map(h=>h+':00');
+  drawBar('hourChart', labels, hours.map(h=>hourCounts[h]), '#F59E0B');
+  drawBar('dncHourChart', labels, hours.map(h=>dncHourCounts[h]), '#F87171');
+  drawBar('dropHourChart', labels, hours.map(h=>dropHourCounts[h]), '#FBBF24');
+}
+function drawBar(id, labels, data, color){
+  const key='_'+id;
+  if(window[key]) window[key].destroy();
+  const ctx = document.getElementById(id).getContext('2d');
+  window[key] = new Chart(ctx, {
+    type:'bar',
+    data:{labels, datasets:[{data, backgroundColor:color+'CC', borderRadius:3, barPercentage:.8}]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{ x:{ticks:{color:'#616D91',font:{size:9}},grid:{display:false}}, y:{ticks:{color:'#616D91'},grid:{color:'#232C48'}} } }
+  });
+}
+
+/* ================= RENDER: Dispo ================= */
+function renderDispo(dispoCounts, dispoNames, total){
+  const rows = Object.entries(dispoCounts).sort((a,b)=>b[1]-a[1]);
+  document.querySelector('#dispoTable tbody').innerHTML = rows.map(([k,c])=>
+    '<tr><td>'+esc(k)+(dispoNames[k]?' <span class="dim">— '+esc(dispoNames[k])+'</span>':'')+'</td><td>'+c.toLocaleString()+'</td><td>'+pct(c,total)+'</td></tr>').join('');
+}
+
+/* ================= RENDER: Agent Table ================= */
+function renderAgentTable(agentMap, redialFlags){
+  const thead = document.querySelector('#agentTable thead');
+  const cols = ['Agent','Total','Inbound','Outbound','Short%','<2m','5-10m','10-15m','15-20m','20-30m','30m+','Avg Talk','Total Talk','Drops','Redials'];
+  thead.innerHTML = '<tr>'+cols.map((c,i)=>'<th data-i="'+i+'" onclick="sortTable(\'agentTable\','+i+',this)">'+c+'</th>').join('')+'</tr>';
+  const rows = Object.entries(agentMap).map(([name,b])=>({
+    name, total:b.total, inbound:b.inbound, outbound:b.outbound,
+    shortPct: b.total?(b.short/b.total*100):0, r2m:b.r2m, r5to10:b.r5to10, r10to15:b.r10to15, r15to20:b.r15to20, r20to30:b.r20to30, gt30:b.gt30,
+    avgTalk: b.total? b.sec/b.total:0, totalTalk:b.sec, drops:b.drops, redials: redialFlags[name]||0
+  })).sort((a,b)=>b.total-a.total);
+  const totalRow = rows.reduce((a,r)=>({total:a.total+r.total, inbound:a.inbound+r.inbound, outbound:a.outbound+r.outbound, totalTalk:a.totalTalk+r.totalTalk, drops:a.drops+r.drops}),{total:0,inbound:0,outbound:0,totalTalk:0,drops:0});
+  let html = rows.map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+r.total+'</td><td>'+r.inbound+'</td><td>'+r.outbound+'</td><td>'+r.shortPct.toFixed(1)+'%</td><td>'+r.r2m+'</td><td>'+r.r5to10+'</td><td>'+r.r10to15+'</td><td>'+r.r15to20+'</td><td>'+r.r20to30+'</td><td>'+r.gt30+'</td><td>'+fmtDur(r.avgTalk)+'</td><td>'+fmtDur(r.totalTalk)+'</td><td>'+r.drops+'</td><td>'+(r.redials||'—')+'</td></tr>').join('');
+  html += '<tr class="total-row"><td>TOTAL</td><td>'+totalRow.total+'</td><td>'+totalRow.inbound+'</td><td>'+totalRow.outbound+'</td><td>—</td><td colspan="6">—</td><td>—</td><td>'+fmtDur(totalRow.totalTalk)+'</td><td>'+totalRow.drops+'</td><td>—</td></tr>';
+  document.querySelector('#agentTable tbody').innerHTML = html;
+}
+
+/* ================= SORT / EXPORT / MODAL ================= */
+function sortTable(tableId, colIdx, th){
+  const table = document.getElementById(tableId);
+  const tbody = table.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr')).filter(r=>!r.classList.contains('total-row'));
+  const totalRow = tbody.querySelector('tr.total-row');
+  const asc = !th.classList.contains('sort-asc');
+  table.querySelectorAll('th').forEach(t=>t.classList.remove('sort-asc','sort-desc'));
+  th.classList.add(asc?'sort-asc':'sort-desc');
+  rows.sort((a,b)=>{
+    let av = a.children[colIdx].textContent.trim().replace('%','').replace(/,/g,'');
+    let bv = b.children[colIdx].textContent.trim().replace('%','').replace(/,/g,'');
+    const an = parseFloat(av), bn = parseFloat(bv);
+    if(!isNaN(an) && !isNaN(bn)) return asc ? an-bn : bn-an;
+    return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+  rows.forEach(r=>tbody.appendChild(r));
+  if(totalRow) tbody.appendChild(totalRow);
+}
+
+function exportTable(tableId, filename){
+  const table = document.getElementById(tableId);
+  const rows = Array.from(table.querySelectorAll('tr'));
+  const csv = rows.map(r=>Array.from(r.children).map(c=>'"'+c.textContent.replace(/"/g,'""').trim()+'"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+}
+
+function openModal(title, bodyHtml){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(){ document.getElementById('modalBg').classList.remove('open'); }
+
+/* ================= COPY SUMMARY ================= */
+function copySummary(){
+  const s = window._summary;
+  if(!s){ toast('Run analysis first'); return; }
+  const lines = [
+    'TAX Daily Monitor Summary',
+    'Total Calls: '+s.totalCalls,
+    'Contact Rate: '+s.contactRate,
+    'Drops: '+s.drops,
+    'DNC Calls: '+s.dnc,
+    'Dialed After DNC: '+s.afterDnc,
+    '',
+    'Issues:',
+    ...s.issues.map(i=>'- '+i.text.replace(/<[^>]+>/g,''))
+  ];
+  const text = lines.join('\n');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast('Summary copied')).catch(()=>fallbackCopy(text));
+  } else fallbackCopy(text);
+}
+function fallbackCopy(text){
+  const ta = document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('Summary copied'); }catch(e){ toast('Copy failed'); }
+  document.body.removeChild(ta);
+}
+
+/* ================= THRESHOLDS ================= */
+function loadThresholds(){
+  const saved = localStorage.getItem('tax_thresholds');
+  if(saved){ try{ TH = Object.assign({}, DEFAULT_THRESHOLDS, JSON.parse(saved)); }catch(e){} }
+  const grid = document.getElementById('thGrid');
+  grid.innerHTML = Object.keys(TH_LABELS).map(k=>
+    '<div class="th-item"><label>'+TH_LABELS[k]+'</label><input type="number" id="th-'+k+'" value="'+TH[k]+'"></div>').join('');
+}
+function saveThresholds(){
+  Object.keys(TH_LABELS).forEach(k=>{ const v=Number(document.getElementById('th-'+k).value); if(!isNaN(v)) TH[k]=v; });
+  localStorage.setItem('tax_thresholds', JSON.stringify(TH));
+  toast('Thresholds saved');
+  rerunIfLoaded();
+}
+
+/* ================= INIT ================= */
+loadThresholds();
+restoreCollapse();
+(function setDefaultDateRange(){
+  const d = new Date();
+  const s = d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+  document.getElementById('fromDate').value = s;
+  document.getElementById('toDate').value = s;
+})();
+</script>
+</body>
+</html>
