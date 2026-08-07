@@ -770,6 +770,7 @@ function computeKpiData(rows){
   const phoneBest = {};
   rows.forEach(r=>{ if(r._phone && r._sec>(phoneBest[r._phone]||0)) phoneBest[r._phone]=r._sec; });
   const gt2mUnique = Object.values(phoneBest).filter(s=>s>120).length;
+  const gt5mUnique = Object.values(phoneBest).filter(s=>s>300).length;
   const gt15mUnique = Object.values(phoneBest).filter(s=>s>900).length;
   const gt30mUnique = Object.values(phoneBest).filter(s=>s>1800).length;
 
@@ -787,7 +788,7 @@ function computeKpiData(rows){
     }
   });
 
-  return {totalCalls, dialedUnique, contactedUnique, receivedUnique, avgTalk, dropRows, dncRows, dialedAfterDncPhones, uniquePhonesAll, gt2mUnique, gt15mUnique, gt30mUnique, afterDncDetail};
+  return {totalCalls, dialedUnique, contactedUnique, receivedUnique, avgTalk, dropRows, dncRows, dialedAfterDncPhones, uniquePhonesAll, gt2mUnique, gt5mUnique, gt15mUnique, gt30mUnique, afterDncDetail};
 }
 
 /* ================= RENDER: KPI =================
@@ -804,6 +805,7 @@ function renderKpis(d){
     {l:'Unique Numbers Received', v:d.receivedUnique.size.toLocaleString(), sub:'distinct inbound phone numbers', cls:'blue'},
     {l:'Contact Rate (outbound)', v:contactRate.toFixed(1)+'%', sub:d.contactedUnique.size.toLocaleString()+' of '+d.dialedUnique.size.toLocaleString()+' dialed reached >30s', cls:contactRate<30?'amber':'green'},
     {l:'Unique Calls >2 Min', v:d.gt2mUnique.toLocaleString(), sub:pct(d.gt2mUnique,d.uniquePhonesAll.size)+' of unique calls', cls:'blue'},
+    {l:'Unique Calls >5 Min', v:d.gt5mUnique.toLocaleString(), sub:pct(d.gt5mUnique,d.uniquePhonesAll.size)+' of unique calls', cls:'amber'},
     {l:'Unique Calls >15 Min', v:d.gt15mUnique.toLocaleString(), sub:pct(d.gt15mUnique,d.uniquePhonesAll.size)+' of unique calls', cls:'green'},
     {l:'Unique Calls >30 Min', v:d.gt30mUnique.toLocaleString(), sub:pct(d.gt30mUnique,d.uniquePhonesAll.size)+' of unique calls', cls:'purple'},
     {l:'Avg Talk Time', v:fmtDur(d.avgTalk), sub:'per call', cls:'blue'},
